@@ -1,18 +1,19 @@
 import { economy } from '../../lib/economy';
 
 export const commands: Chat.ChatCommands = {
-    balance: async function (target, room, user) {
-        this.runBroadcast(); // Allows broadcasting
-        if (!target) target = user.name;
+	balance: async function (target, room, user) {
+    this.runBroadcast(); // Allows broadcasting
+    const targetUser = (target ? target.trim().toLowerCase() : user.name.toLowerCase());
 
-        const balance = await economy.getBalance(target);
-        this.sendReplyBox(`${target} has <strong>${balance}</strong> currency.`);
-    },
-
+    const balance = await economy.getBalance(targetUser);
+    this.sendReplyBox(`${targetUser} has ${balance} currency.`);
+},
+	
 	givemoney: async function (target, room, user) {
     if (!user.can('declare')) return this.errorReply("Access denied.");
     
-    const [targetUser, amountStr] = target.split(',').map(p => p.trim());
+    const [targetUserRaw, amountStr] = target.split(',').map(p => p.trim());
+    const targetUser = targetUserRaw?.toLowerCase(); // Trim and lowercase username
     const amount = parseInt(amountStr);
 
     if (!targetUser || isNaN(amount) || amount <= 0) {
@@ -35,7 +36,8 @@ export const commands: Chat.ChatCommands = {
 	takemoney: async function (target, room, user) {
     if (!user.can('declare')) return this.errorReply("Access denied.");
 
-    const [targetUser, amountStr] = target.split(',').map(p => p.trim());
+    const [targetUserRaw, amountStr] = target.split(',').map(p => p.trim());
+    const targetUser = targetUserRaw?.toLowerCase();
     const amount = parseInt(amountStr);
 
     if (!targetUser || isNaN(amount) || amount <= 0) {
@@ -48,6 +50,9 @@ export const commands: Chat.ChatCommands = {
     await economy.removeCurrency(targetUser, amount);
     this.addGlobalModAction(`${user.name} took ${amount} currency from ${targetUser}.`);
 
+    // Notify sender
+    this.sendReply(`You have successfully taken ${amount} currency from ${targetUser}.`);
+
     // Notify target user
     const targetUserObj = Users.get(targetUser);
     if (targetUserObj) {
@@ -56,66 +61,86 @@ export const commands: Chat.ChatCommands = {
 },
 
 	transfermoney: async function (target, room, user) {
-    const [targetUser, amountStr] = target.split(',').map(p => p.trim());
+    const [targetUserRaw, amountStr] = target.split(',').map(p => p.trim());
+    const targetUser = targetUserRaw?.toLowerCase();
     const amount = parseInt(amountStr);
 
     if (!targetUser || isNaN(amount) || amount <= 0) {
         return this.errorReply("Invalid usage. Example: /transfermoney username, amount");
     }
 
-    const balance = await economy.getBalance(user.name);
-    if (balance < amount) return this.errorReply("You do not have enough currency.");
+    const sender = user.name.toLowerCase();
+    if (sender === targetUser) return this.errorReply("You cannot transfer money to yourself.");
+    if (await economy.getBalance(sender) < amount) return this.errorReply("You do not have enough currency.");
 
-    await economy.removeCurrency(user.name, amount);
-    await economy.addCurrency(targetUser, amount);
-
+    await economy.transferCurrency(sender, targetUser, amount);
     this.addGlobalModAction(`${user.name} transferred ${amount} currency to ${targetUser}.`);
 
-    // Notify both users
+    // Notify sender
     this.sendReply(`You have successfully transferred ${amount} currency to ${targetUser}.`);
+
+    // Notify recipient
     const targetUserObj = Users.get(targetUser);
     if (targetUserObj) {
-        targetUserObj.send(`|pm|${user.name}|${targetUserObj.name}|${user.name} has sent you ${amount} currency.`);
+        targetUserObj.send(`|pm|${user.name}|${targetUserObj.name}|You have received ${amount} currency from ${user.name}!`);
     }
 },
 
 	richestuser: async function (target, room, user) {
-    if (target === 'all' && !this.runBroadcast()) return;
+    if (target && target.trim().toLowerCase() === "all") {
+        // Show top 100 but do not broadcast
+        const topUsers = await economy.getRichestUsers(100);
+        if (!topUsers.length) return this.sendReplyBox("No users found in the economy system.");
 
-    const limit = target === 'all' ? 100 : 20;
-    const topUsers = await economy.getRichestUsers(limit);
-    
+        let msg = `<strong>Top 100 Richest Users:</strong><br>`;
+        for (let i = 0; i < topUsers.length; i++) {
+            msg += `${i + 1}. <strong>${topUsers[i].user}</strong>: ${topUsers[i].balance} currency<br>`;
+        }
+
+        return this.sendReplyBox(
+            `<div style="max-height: 300px; overflow: auto; padding: 5px; border: 1px solid #444; background: #222; color: white;">${msg}</div>`
+        );
+    }
+
+    this.runBroadcast(); // Allow broadcasting
+
+    const topUsers = await economy.getRichestUsers(20); // Get top 20 users
     if (!topUsers.length) return this.sendReplyBox("No users found in the economy system.");
 
-    let msg = `<div style="max-height:300px; overflow:auto; padding:5px; border:1px solid #444; background:#222; color:white;">`;
-    msg += `<strong>Richest Users:</strong><br>`;
+    let msg = `<strong>Top 20 Richest Users:</strong><br>`;
     for (let i = 0; i < topUsers.length; i++) {
         msg += `${i + 1}. <strong>${topUsers[i].user}</strong>: ${topUsers[i].balance} currency<br>`;
     }
-    msg += `</div>`;
 
-    return this.sendReplyBox(msg);
+    return this.sendReplyBox(
+        `<div style="max-height: 300px; overflow: auto; padding: 5px; border: 1px solid #444; background: #222; color: white;">${msg}</div>`
+    );
 },
-
+	
 	reset: async function (target, room, user) {
     if (!user.can('declare')) return this.errorReply("Access denied.");
 
     await economy.resetAll();
-    this.addGlobalModAction(`${user.name} reset all user balances.`);
+    this.addGlobalModAction(`${user.name} has reset all user balances.`);
 
     // Notify all online users
-    Users.broadcast(`|raw|<strong>${user.name} has reset all balances!</strong>`);
+    room.add(`|html|<div style="border: 1px solid #444; background: #222; color: white; padding: 5px;">All user balances have been reset by ${user.name}.</div>`);
 },
 
 	deleteuser: async function (target, room, user) {
     if (!user.can('declare')) return this.errorReply("Access denied.");
-    if (!target) return this.errorReply("Please specify a user to delete.");
+    
+    const targetUser = target.trim().toLowerCase();
+    if (!targetUser) return this.errorReply("Please specify a user to delete.");
 
-    await economy.deleteUser(target);
-    this.addGlobalModAction(`${user.name} deleted ${target} from the economy system.`);
+    await economy.deleteUser(targetUser);
+    this.addGlobalModAction(`${user.name} deleted ${targetUser} from the economy system.`);
+
+    // Notify sender
+    this.sendReply(`You have successfully deleted ${targetUser} from the economy system.`);
 
     // Notify target user if online
-    const targetUserObj = Users.get(target);
+    const targetUserObj = Users.get(targetUser);
     if (targetUserObj) {
         targetUserObj.send(`|pm|${user.name}|${targetUserObj.name}|Your economy data has been deleted by ${user.name}.`);
     }
