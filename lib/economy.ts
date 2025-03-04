@@ -56,7 +56,7 @@ class EconomySystem {
         }
     }
 
-    private async connectToMongoDB() {
+    public async connectToMongoDB() {
         try {
             const client = new MongoClient(Config.mongoURI);
             await client.connect();
@@ -68,7 +68,7 @@ class EconomySystem {
         }
     }
 
-    private loadFromJSON() {
+    public loadFromJSON() {
         try {
             if (!FS(CURRENCY_FILE).existsSync()) {
                 FS(CURRENCY_FILE).writeSync('{}');
@@ -86,7 +86,7 @@ class EconomySystem {
         }
     }
 
-    private saveToJSON() {
+    public saveToJSON() {
         FS(CURRENCY_FILE).writeUpdate(() => JSON.stringify(this.data, null, 2));
         FS(TRANSACTION_FILE).writeUpdate(() => JSON.stringify(this.transactions, null, 2));
     }
