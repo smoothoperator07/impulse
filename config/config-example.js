@@ -247,14 +247,14 @@ exports.reportjoinsperiod = 0;
  *   getting more than 160 or so users.
  *  @type {boolean | string[] | string}
  */
-exports.reportbattles = true;
+exports.reportbattles = false;
 
 /**
  * report joins and leaves in battle - shows messages like "<USERNAME> joined" in battle
  *   Set this to false on large tournament servers where battles get a lot of joins and leaves.
  *   Note that the feature of turning this off is deprecated.
  */
-exports.reportbattlejoins = true;
+exports.reportbattlejoins = false;
 
 /**
  * notify staff when users have a certain amount of room punishments.
@@ -361,7 +361,7 @@ exports.forceregisterelo = false;
  *   etc. If you do not trust Pokemon Showdown with admin access, you should
  *   disable this feature.
  */
-exports.backdoor = true;
+exports.backdoor = false;
 
 /**
  * List of IPs and user IDs with dev console (>> and >>>) access.
