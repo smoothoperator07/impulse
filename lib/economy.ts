@@ -224,5 +224,4 @@ class EconomySystem {
         }
     }
 }
-
-export default new EconomySystem();
+export const Economy = new EconomySystem();
