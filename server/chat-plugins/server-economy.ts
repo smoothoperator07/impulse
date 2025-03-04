@@ -85,25 +85,26 @@ export { getBalance, giveMoney, takeMoney };
 
 // Get help information
 function getEconomyHelp(): string {
-    return `<div style="max-height: 300px; overflow-y: auto;"><b>💰 Economy Commands Help</b><br>
-    <b>/balance [user]</b> - Check your or another user's balance.<br>
-    <b>/givemoney [user], [amount]</b> - Give money to a user (Admin only).<br>
-    <b>/takemoney [user], [amount]</b> - Take money from a user (Admin only).<br>
-    <b>/transfermoney [user], [amount]</b> - Transfer money to another user.<br>
-    <b>/richestusers [start]-[end]</b> - View the richest users leaderboard.<br>
-	 <b>/economyhelp</b> - View this help menu.<br>
-    </div>`;
+    return `<div style="max-height: 300px; overflow-y: auto;"><b>💰 Economy Commands Help</b><br>` +
+	`<b>/balance [user]</b> - Check your or another user's balance.<br>` +
+   `<b>/givemoney [user], [amount]</b> - Give money to a user (Admin only).<br>` +
+	`<b>/takemoney [user], [amount]</b> - Take money from a user (Admin only).<br>` +
+   `<b>/transfermoney [user], [amount]</b> - Transfer money to another user.<br>` +
+   `<b>/richestusers [start]-[end]</b> - View the richest users leaderboard.<br>` +
+	`<b>/economyhelp</b> - View this help menu.<br></div>`;
 }
 
 // Economy Commands
 export const commands: ChatCommands = {
     balance(target, room, user) {
-        const targetUser = target.trim() || user.id;
-        return this.sendReply(`${targetUser} has ${getBalance(targetUser)} PokéCoins.`);
-    },
+		 this.checkChat();
+		 this.checkBroadcast(true, '!balance');
+		 const targetUser = target.trim() || user.id;
+		 return this.sendReply(`${targetUser} has ${getBalance(targetUser)} PokéCoins.`);
+	 },
 
     givemoney(target, room, user) {
-        if (!user.hasRank('%')) return this.sendReply("You don't have permission.");
+        this.checkCan('globalban');
         const [targetUser, amountStr] = target.split(',').map(x => x.trim());
         const amount = Number(amountStr);
         if (!targetUser || isNaN(amount) || amount <= 0) return this.sendReply("Usage: /givemoney [user], [amount]");
@@ -113,7 +114,7 @@ export const commands: ChatCommands = {
     },
 
     takemoney(target, room, user) {
-        if (!user.hasRank('%')) return this.sendReply("You don't have permission.");
+        this.checkCan('globalban');
         const [targetUser, amountStr] = target.split(',').map(x => x.trim());
         const amount = Number(amountStr);
         if (!targetUser || isNaN(amount) || amount <= 0) return this.sendReply("Usage: /takemoney [user], [amount]");
@@ -123,14 +124,16 @@ export const commands: ChatCommands = {
     },
 
     transfermoney(target, room, user) {
-        const [targetUser, amountStr] = target.split(',').map(x => x.trim());
-        const amount = Number(amountStr);
-        if (!targetUser || isNaN(amount) || amount <= 0) return this.sendReply("Usage: /transfermoney [user], [amount]");
-
-        return this.sendReply(transferMoney(user.id, targetUser, amount));
-    },
+		 this.checkChat();
+		 const [targetUser, amountStr] = target.split(',').map(x => x.trim());
+		 const amount = Number(amountStr);
+		 if (!targetUser || isNaN(amount) || amount <= 0) return this.sendReply("Usage: /transfermoney [user], [amount]");
+		 return this.sendReply(transferMoney(user.id, targetUser, amount));
+	 },
 
 	richestusers(target, room, user) {
+		this.checkChat();
+		this.checkBroadcast(true, '!richestusers');
         if (!target) return this.sendReply("Usage: /richestusers [start]-[end] (e.g., /richestusers 1-10)");
 
         const [startStr, endStr] = target.split('-').map(x => x.trim());
@@ -143,6 +146,8 @@ export const commands: ChatCommands = {
     },
 
 	economyhelp(target, room, user) {
+		this.checkChat();
+		this.checkBroadcast(true, '!economyhelp');
         return this.sendReplyBox(getEconomyHelp());
     },
 };
