@@ -15,7 +15,7 @@ interface EconomyData {
 }
 
 // Load economy data
-function loadEconomy(): EconomyData {
+global.loadEconomy(): EconomyData {
     try {
         return JSON.parse(FS(ECONOMY_FILE).readIfExistsSync() || '{}');
     } catch {
@@ -24,18 +24,18 @@ function loadEconomy(): EconomyData {
 }
 
 // Save economy data
-function saveEconomy(data: EconomyData) {
+global.saveEconomy(data: EconomyData) {
     FS(ECONOMY_FILE).writeUpdate(() => JSON.stringify(data, null, 2));
 }
 
 // Economy Functions
-function getBalance(userID: string): number {
+global.getBalance(userID: string): number {
     const economy = loadEconomy();
     return economy[userID]?.balance || 0;
 }
 
 // Give money
-function giveMoney(userID: string, amount: number) {
+global.giveMoney(userID: string, amount: number) {
     const economy = loadEconomy();
     if (!economy[userID]) economy[userID] = { balance: 0 };
     economy[userID].balance += amount;
@@ -43,7 +43,7 @@ function giveMoney(userID: string, amount: number) {
 }
 
 // Take money
-function takeMoney(userID: string, amount: number) {
+global.takeMoney(userID: string, amount: number) {
     const economy = loadEconomy();
     if (!economy[userID]) return;
     economy[userID].balance = Math.max(0, economy[userID].balance - amount);
@@ -51,7 +51,7 @@ function takeMoney(userID: string, amount: number) {
 }
 
 // Transfer money
-function transferMoney(fromID: string, toID: string, amount: number): string {
+global.transferMoney(fromID: string, toID: string, amount: number): string {
     const economy = loadEconomy();
     if (!economy[fromID] || economy[fromID].balance < amount) return "You don't have enough PokéCoins.";
     if (amount <= 0) return "Invalid amount.";
@@ -64,7 +64,7 @@ function transferMoney(fromID: string, toID: string, amount: number): string {
 }
 
 // Get the richest users leaderboard
-function getRichestUsers(start: number, end: number): string {
+global.getRichestUsers(start: number, end: number): string {
     const economy = loadEconomy();
     const sortedUsers = Object.entries(economy)
         .sort(([, a], [, b]) => b.balance - a.balance)
