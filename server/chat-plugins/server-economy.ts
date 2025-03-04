@@ -66,11 +66,8 @@ function transferMoney(fromID: string, toID: string, amount: number): string {
 // Get the richest users leaderboard
 function getRichestUsers(start: number, end: number): string {
     const economy = loadEconomy();
-    const sortedUsers = Object.entries(economy)
-        .sort(([, a], [, b]) => (b.balance) - (a.balance)
-        .slice(start - 1, end);
-
-    if (sortedUsers.length === 0) return "No users found in this range.";
+    const sortedUsers = Object.entries(economy).sort(([, a], [, b]) => (b.balance) - (a.balance).slice(start - 1, end);
+	if (sortedUsers.length === 0) return "No users found in this range.";
 
     let leaderboard = `<div style="max-height: 300px; overflow-y: auto;"><b>🏆 Richest Users Leaderboard</b><br>`;
     sortedUsers.forEach(([userID, { balance }], index) => {
