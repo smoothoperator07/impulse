@@ -1,5 +1,5 @@
 import { FS } from '../../lib';
-import { economy } from '../../lib';
+import { getBalance, addCurrency, removeCurrency, transferCurrency, deleteUser, getTransactionSummary} from '../../lib';
 
 export const commands: Chat.ChatCommands = {
   balance(target, room, user) {
