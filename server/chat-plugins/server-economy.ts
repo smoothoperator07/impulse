@@ -4,7 +4,7 @@
  * Features: Balance tracking, banking, interest, leaderboards, and transactions.
  */
 
-import { FS } from '../../lib/fs';
+import { FS } from '../../lib';
 
 const ECONOMY_FILE = '../impulse/economy.json';
 
