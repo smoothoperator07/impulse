@@ -81,7 +81,7 @@ function getRichestUsers(start: number, end: number): string {
     return leaderboard;
 }
 
-export { getBalance, giveMoney, takeMoney };
+export { getBalance, giveMoney, takeMoney, loadEconomy, saveEconomy};
 
 // Get help information
 function getEconomyHelp(): string {
