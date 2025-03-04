@@ -22,6 +22,15 @@ class EconomySystem {
         }
     }
 
+	async save(): Promise<void> {
+    if (!this.filePath) {
+        console.error("Error: File path for economy data is undefined.");
+        return;
+    }
+    console.log(`Saving economy data to ${this.filePath}`);
+    await FS(this.filePath).write(JSON.stringify(this.data, null, 2));
+	}
+
     async getBalance(userid: string): Promise<number> {
         userid = userid.toLowerCase();
 
@@ -33,44 +42,45 @@ class EconomySystem {
         return this.data[userid] || 0;
     }
 
-    async addCurrency(userid: string, amount: number): Promise<void> {
-        userid = userid.toLowerCase();
-        if (amount <= 0) throw new Error("Amount must be greater than zero.");
+	async addCurrency(userid: string, amount: number): Promise<void> {
+    userid = userid.toLowerCase();
+    if (amount <= 0) throw new Error("Amount must be greater than zero.");
 
-        if (this.balancesCollection) {
-            await this.balancesCollection.updateOne(
-                { userid },
-                { $inc: { balance: amount } },
-                { upsert: true }
-            );
-        } else {
-            if (!this.filePath) throw new Error("filePath is undefined in FS mode.");
-            if (!this.data[userid]) this.data[userid] = 0;
-            this.data[userid] += amount;
+    if (this.balancesCollection) {
+        await this.balancesCollection.updateOne(
+            { userid },
+            { $inc: { balance: amount } },
+            { upsert: true }
+        );
+    } else {
+        if (!this.filePath) throw new Error("filePath is undefined in FS mode.");
+        if (!this.data[userid]) this.data[userid] = 0;
+        this.data[userid] += amount;
 
-            FS(this.filePath).writeUpdate(() => JSON.stringify(this.data, null, 2));
-        }
+        await this.save(); // 🔥 This ensures data is written to JSON
     }
+	}
 
-    async removeCurrency(userid: string, amount: number): Promise<void> {
-        userid = userid.toLowerCase();
-        if (amount <= 0) throw new Error("Amount must be greater than zero.");
+	async removeCurrency(userid: string, amount: number): Promise<void> {
+    userid = userid.toLowerCase();
+    if (amount <= 0) throw new Error("Amount must be greater than zero.");
 
-        const balance = await this.getBalance(userid);
-        if (balance < amount) throw new Error("Insufficient funds.");
+    const balance = await this.getBalance(userid);
+    if (balance < amount) throw new Error("Insufficient funds.");
 
-        if (this.balancesCollection) {
-            await this.balancesCollection.updateOne(
-                { userid },
-                { $inc: { balance: -amount } }
-            );
-        } else {
-            if (!this.filePath) throw new Error("filePath is undefined in FS mode.");
-            this.data[userid] = Math.max(0, balance - amount);
+    if (this.balancesCollection) {
+        await this.balancesCollection.updateOne(
+            { userid },
+            { $inc: { balance: -amount } }
+        );
+    } else {
+        if (!this.filePath) throw new Error("filePath is undefined in FS mode.");
+        this.data[userid] = Math.max(0, balance - amount);
 
-            FS(this.filePath).writeUpdate(() => JSON.stringify(this.data, null, 2));
-        }
+        await this.save(); // 🔥 Ensures FS writes the updated balance
     }
+	}
+	
 
     async transferCurrency(fromUser: string, toUser: string, amount: number): Promise<void> {
         fromUser = fromUser.toLowerCase();
@@ -85,25 +95,25 @@ class EconomySystem {
         await this.addCurrency(toUser, amount);
     }
 
-    async resetAll(): Promise<void> {
-        if (this.balancesCollection) {
-            await this.balancesCollection.deleteMany({});
-        } else {
-            this.data = {};
-            FS(this.filePath).writeUpdate(() => "{}");
-        }
+	async resetAll(): Promise<void> {
+    if (this.balancesCollection) {
+        await this.balancesCollection.deleteMany({});
+    } else {
+        this.data = {};
+        await this.save(); // 🔥 Ensures JSON is updated
     }
+	}
 
-    async deleteUser(userid: string): Promise<void> {
-        userid = userid.toLowerCase();
+	async deleteUser(userid: string): Promise<void> {
+    userid = userid.toLowerCase();
 
-        if (this.balancesCollection) {
-            await this.balancesCollection.deleteOne({ userid });
-        } else {
-            delete this.data[userid];
-            FS(this.filePath).writeUpdate(() => JSON.stringify(this.data, null, 2));
-        }
+    if (this.balancesCollection) {
+        await this.balancesCollection.deleteOne({ userid });
+    } else {
+        delete this.data[userid];
+        await this.save(); // 🔥 Ensures JSON is updated
     }
+	}
 
     async getRichestUsers(limit: number = 20): Promise<{ user: string; balance: number }[]> {
         if (this.balancesCollection) {
