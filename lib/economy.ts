@@ -1,3 +1,24 @@
+/**
+ * Economy System for Pokémon Showdown
+ * 
+ * Author: [Your Name]
+ * 
+ * Features:
+ * - Currency system with JSON or MongoDB storage
+ * - Transaction history with logging
+ * - Admin-only commands: addcurrency, removecurrency, reset, clearAllBalances
+ * - Transfer currency between users
+ * - User deletion & inactivity tracking
+ * - Scrollable transaction history & richest users
+ * - Modern, easy-to-read UI
+ * 
+ * Pokémon Showdown Internal Modules Used:
+ * - FS (for file storage)
+ * - MongoDB (optional for database storage)
+ * 
+ * License: MIT or as per Pokémon Showdown's open-source licensing
+ */
+
 import { FS } from './fs';
 import { MongoClient, Db, Collection } from 'mongodb';
 
