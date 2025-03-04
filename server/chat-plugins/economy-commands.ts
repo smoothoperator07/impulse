@@ -1,11 +1,11 @@
 import { FS } from '../../lib';
-import { getBalance, addCurrency, removeCurrency, transferCurrency, deleteUser, getTransactionSummary} from '../../lib/economy';
+import { economy } from '../../lib/economy';
 
 export const commands: Chat.ChatCommands = {
   balance(target, room, user) {
       if (!target) target = user.name;
       this.runBroadcast(); // Allows broadcasting in chat
-      const balance = getBalance(target);
+      const balance = economy.getBalance(target);
       return this.sendReplyBox(`<strong>${target}</strong> has <strong>${balance}</strong> currency.`);
     },
   
