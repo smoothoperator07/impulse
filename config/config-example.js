@@ -18,14 +18,14 @@ exports.bindaddress = '0.0.0.0';
 /**
 * MongoDB Configuration For Economy System
 * Usage
-* Config.useMongoDB = true; // Set to false to use JSON storage
-* Config.mongoURI = 'mongodb://localhost:8000';
-* Config.mongoDatabase = 'pokemonshowdown';
+* exports.useMongoDB = true; // Set to false to use JSON storage
+* exports.mongoURI = 'mongodb://localhost:8000';
+* exports.mongoDatabase = 'pokemonshowdown';
 */
 
-Config.useMongoDB = false; // Set to false to use JSON storage
-Config.mongoURI = '';
-Config.mongoDatabase = '';
+exports.useMongoDB = false; // Set to false to use JSON storage
+exports.mongoURI = '';
+exports.mongoDatabase = '';
 
 
 /**
