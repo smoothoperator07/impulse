@@ -1,119 +1,127 @@
 import { FS } from './fs';
 import { MongoClient, Collection } from 'mongodb';
 
-class EconomySystem {
-    data: Record<string, number> = {};
-    filePath: string;
-    balancesCollection: Collection | null;
+const economyConfig = {
+    useMongoDB: false, // Set to false to use FS (JSON) mode
+    mongoUrl: "mongodb://localhost:27017", // Change this if using a remote database
+    databaseName: "pokemonshowdown",
+    jsonFilePath: "databases/economy.json", // Used only if MongoDB is disabled
+};
 
-    constructor(filePath: string, balancesCollection: Collection | null = null) {
-        this.filePath = filePath;
-        this.balancesCollection = balancesCollection;
+export class EconomySystem {
+    private data: Record<string, number>;
+    private filePath: string;
+    private balancesCollection: Collection | null;
 
+    constructor() {
+        this.filePath = economyConfig.jsonFilePath;
+        this.data = {};
+        this.balancesCollection = null;
+
+        if (economyConfig.useMongoDB) {
+            this.connectMongoDB().catch(console.error);
+        } else {
+            this.load();
+        }
+    }
+
+    private async connectMongoDB() {
+        const client = new MongoClient(economyConfig.mongoUrl);
+        await client.connect();
+        this.balancesCollection = client.db(economyConfig.databaseName).collection("economy");
+    }
+
+    private load(): void {
+        if (!FS(this.filePath).existsSync()) return;
+        try {
+            this.data = JSON.parse(FS(this.filePath).readSync());
+        } catch (e) {
+            console.error("Failed to load economy data:", e);
+        }
+    }
+
+    private async save(): Promise<void> {
         if (!this.balancesCollection) {
-            this.loadData();
+            FS(this.filePath).writeUpdate(() => JSON.stringify(this.data, null, 2));
         }
     }
-
-    async loadData() {
-        if (!this.filePath) throw new Error("filePath is not set for FS storage.");
-        if (FS(this.filePath).existsSync()) {
-            this.data = JSON.parse(FS(this.filePath).readIfExistsSync() || "{}");
-        }
-    }
-
-	async save(): Promise<void> {
-    if (!this.filePath) {
-        console.error("Error: File path for economy data is undefined.");
-        return;
-    }
-    console.log(`Saving economy data to ${this.filePath}`);
-    await FS(this.filePath).write(JSON.stringify(this.data, null, 2));
-	}
 
     async getBalance(userid: string): Promise<number> {
-        userid = userid.toLowerCase();
-
+        userid = userid.trim().toLowerCase();
         if (this.balancesCollection) {
             const user = await this.balancesCollection.findOne({ userid });
             return user ? user.balance : 0;
         }
-
         return this.data[userid] || 0;
     }
 
-	async addCurrency(userid: string, amount: number): Promise<void> {
-    userid = userid.toLowerCase();
-    if (amount <= 0) throw new Error("Amount must be greater than zero.");
-
-    if (this.balancesCollection) {
-        await this.balancesCollection.updateOne(
-            { userid },
-            { $inc: { balance: amount } },
-            { upsert: true }
-        );
-    } else {
-        if (!this.filePath) throw new Error("filePath is undefined in FS mode.");
-        if (!this.data[userid]) this.data[userid] = 0;
-        this.data[userid] += amount;
-
-        await this.save(); // 🔥 This ensures data is written to JSON
-    }
-	}
-
-	async removeCurrency(userid: string, amount: number): Promise<void> {
-    userid = userid.toLowerCase();
-    if (amount <= 0) throw new Error("Amount must be greater than zero.");
-
-    const balance = await this.getBalance(userid);
-    if (balance < amount) throw new Error("Insufficient funds.");
-
-    if (this.balancesCollection) {
-        await this.balancesCollection.updateOne(
-            { userid },
-            { $inc: { balance: -amount } }
-        );
-    } else {
-        if (!this.filePath) throw new Error("filePath is undefined in FS mode.");
-        this.data[userid] = Math.max(0, balance - amount);
-
-        await this.save(); // 🔥 Ensures FS writes the updated balance
-    }
-	}
-	
-
-    async transferCurrency(fromUser: string, toUser: string, amount: number): Promise<void> {
-        fromUser = fromUser.toLowerCase();
-        toUser = toUser.toLowerCase();
-        if (fromUser === toUser) throw new Error("You cannot transfer money to yourself.");
+    async addCurrency(userid: string, amount: number): Promise<void> {
+        userid = userid.trim().toLowerCase();
         if (amount <= 0) throw new Error("Amount must be greater than zero.");
 
-        const senderBalance = await this.getBalance(fromUser);
-        if (senderBalance < amount) throw new Error("Insufficient funds.");
+        if (this.balancesCollection) {
+            await this.balancesCollection.updateOne(
+                { userid },
+                { $inc: { balance: amount } },
+                { upsert: true }
+            );
+        } else {
+            if (!this.filePath) throw new Error("filePath is undefined in FS mode.");
+            if (!this.data[userid]) this.data[userid] = 0;
+            this.data[userid] += amount;
+            await this.save();
+        }
+    }
+
+    async removeCurrency(userid: string, amount: number): Promise<void> {
+        userid = userid.trim().toLowerCase();
+        if (amount <= 0) throw new Error("Amount must be greater than zero.");
+
+        const balance = await this.getBalance(userid);
+        if (balance < amount) throw new Error("Insufficient funds.");
+
+        if (this.balancesCollection) {
+            await this.balancesCollection.updateOne(
+                { userid },
+                { $inc: { balance: -amount } }
+            );
+        } else {
+            this.data[userid] = Math.max(0, balance - amount);
+            await this.save();
+        }
+    }
+
+    async transferCurrency(fromUser: string, toUser: string, amount: number): Promise<void> {
+        fromUser = fromUser.trim().toLowerCase();
+        toUser = toUser.trim().toLowerCase();
+        if (amount <= 0) throw new Error("Amount must be greater than zero.");
+
+        const balance = await this.getBalance(fromUser);
+        if (balance < amount) throw new Error("Insufficient funds.");
 
         await this.removeCurrency(fromUser, amount);
         await this.addCurrency(toUser, amount);
     }
 
-	async resetAll(): Promise<void> {
-    if (this.balancesCollection) {
-        await this.balancesCollection.deleteMany({});
-    } else {
-        this.data = {};
-        await this.save(); // 🔥 Ensures JSON is updated
+    async resetAll(): Promise<void> {
+        if (this.balancesCollection) {
+            await this.balancesCollection.deleteMany({});
+        } else {
+            this.data = {};
+            await this.save();
+        }
     }
-	}
 
-	async deleteUser(userid: string): Promise<void> {
-    userid = userid.toLowerCase();
+    async deleteUser(userid: string): Promise<void> {
+        userid = userid.trim().toLowerCase();
 
-    if (this.balancesCollection) {
-        await this.balancesCollection.deleteOne({ userid });
-    } else {
-        delete this.data[userid];
-        await this.save(); // 🔥 Ensures JSON is updated
+        if (this.balancesCollection) {
+            await this.balancesCollection.deleteOne({ userid });
+        } else {
+            delete this.data[userid];
+            await this.save();
+        }
     }
-	}
 
     async getRichestUsers(limit: number = 20): Promise<{ user: string; balance: number }[]> {
         if (this.balancesCollection) {
@@ -127,11 +135,3 @@ class EconomySystem {
         }
     }
 }
-
-// Initialize economy system with both FS and MongoDB support
-const mongoUri = process.env.MONGO_URI || '';
-const mongoClient = mongoUri ? new MongoClient(mongoUri) : null;
-const database = mongoClient ? mongoClient.db('pokemonshowdown') : null;
-const balancesCollection = database ? database.collection('balances') : null;
-
-export const economy = new EconomySystem('databases/economy.json', balancesCollection);
