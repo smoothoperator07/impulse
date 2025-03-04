@@ -1,6 +1,3 @@
-// Importing necessary economy system functions
-import { getBalance, giveMoney, saveEconomy } from '../../../server/chat-plugins'; // Use the actual import path
-
 // Define the possible prizes on the roulette wheel
 const roulettePrizes = [
     { type: 'money', amount: 50, icon: '💰' },
