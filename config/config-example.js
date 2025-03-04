@@ -16,6 +16,19 @@ exports.port = 8000;
 exports.bindaddress = '0.0.0.0';
 
 /**
+* MongoDB Configuration For Economy System
+* Usage
+* Config.useMongoDB = true; // Set to false to use JSON storage
+* Config.mongoURI = 'mongodb://localhost:8000';
+* Config.mongoDatabase = 'pokemonshowdown';
+*/
+
+Config.useMongoDB = false; // Set to false to use JSON storage
+Config.mongoURI = '';
+Config.mongoDatabase = '';
+
+
+/**
  * workers - the number of networking child processes to spawn
  *   This should be no greater than the number of threads available on your
  *   server's CPU. If you're not sure how many you have, you can check from a
