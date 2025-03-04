@@ -10,24 +10,31 @@ export const commands: Chat.ChatCommands = {
 
     this.sendReplyBox(`<strong>${target}</strong> has <strong>${balance}</strong> currency.`);
 },
-  
-  givemoney(target, room, user) {
+
+	async givemoney(target, room, user) {
     if (!user.can('declare')) return this.errorReply("Access denied.");
+    
     const [targetUser, amountStr] = target.split(',').map(p => p.trim());
     const amount = parseInt(amountStr);
+    
     if (!targetUser || isNaN(amount) || amount <= 0) {
-      return this.errorReply("Invalid command usage. Example: /givemoney username, amount");
+        return this.errorReply("Invalid command usage. Example: /givemoney username, amount");
     }
-    economy.addCurrency(targetUser, amount);
+
+    await economy.addCurrency(targetUser, amount); // Ensure balance is updated
+
     this.addGlobalModAction(`${user.name} gave ${amount} currency to ${targetUser}.`);
+    
     // Notify sender
     this.sendReply(`You have successfully given ${amount} currency to ${targetUser}.`); 
+    
     // Notify the target user
     const targetUserObj = Users.get(targetUser);
     if (targetUserObj) {
-      targetUserObj.send(`|pm|${user.name}|${targetUserObj.name}|You have received ${amount} currency from ${user.name}!`);
+        targetUserObj.send(`|pm|${user.name}|${targetUserObj.name}|You have received ${amount} currency from ${user.name}!`);
     }
-    },
+},
+	
   
   takemoney(target, room, user) {
     if (!user.can('declare')) return this.errorReply("Access denied.");
