@@ -1,7 +1,7 @@
 import { FS } from './fs';
 
-const CURRENCY_FILE = 'impulse/economy.json';
-const TRANSACTION_FILE = 'impulse/economy-transactions.json';
+const CURRENCY_FILE = 'databases/economy/economy.json';
+const TRANSACTION_FILE = 'databases/economy/economy-transactions.json';
 
 interface EconomyData {
     [userid: string]: number;
