@@ -98,7 +98,7 @@ function getEconomyHelp(): string {
 export const commands: ChatCommands = {
     balance(target, room, user) {
 		 this.checkChat();
-		 this.checkBroadcast(true, '!balance');
+		 this.runBroadcast();
 		 const targetUser = target.trim() || user.id;
 		 return this.sendReply(`${targetUser} has ${getBalance(targetUser)} PokéCoins.`);
 	 },
@@ -133,7 +133,7 @@ export const commands: ChatCommands = {
 
 	richestusers(target, room, user) {
 		this.checkChat();
-		this.checkBroadcast(true, '!richestusers');
+		this.runBroadcast();
         if (!target) return this.sendReply("Usage: /richestusers [start]-[end] (e.g., /richestusers 1-10)");
 
         const [startStr, endStr] = target.split('-').map(x => x.trim());
@@ -147,7 +147,7 @@ export const commands: ChatCommands = {
 
 	economyhelp(target, room, user) {
 		this.checkChat();
-		this.checkBroadcast(true, '!economyhelp');
-        return this.sendReplyBox(getEconomyHelp());
+		this.runBroadcast();
+		return this.sendReplyBox(getEconomyHelp());
     },
 };
