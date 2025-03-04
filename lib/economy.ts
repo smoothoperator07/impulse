@@ -1,233 +1,127 @@
-/**
- * Economy System for Pokémon Showdown
- * 
- * Author: Clark Jones ( Prince Sky)
- * 
- * Features:
- * - Currency system with JSON or MongoDB storage
- * - Transaction history with logging
- * - Admin-only commands: addcurrency, removecurrency, reset, clearAllBalances
- * - Transfer currency between users
- * - User deletion & inactivity tracking
- * - Scrollable transaction history & richest users
- * - Modern, easy-to-read UI
- * 
- * Pokémon Showdown Internal Modules Used:
- * - FS (for file storage)
- * - MongoDB (optional for database storage)
- * 
- * License: MIT or as per Pokémon Showdown's open-source licensing
- */
-
 import { FS } from './fs';
-import { MongoClient, Db, Collection } from 'mongodb';
-
-const CURRENCY_FILE = 'databases/economy.json';
-const TRANSACTION_FILE = 'databases/economy-transactions.json';
-
-interface EconomyData {
-    [userid: string]: number;
-}
-
-interface Transaction {
-    timestamp: number;
-    type: 'add' | 'remove' | 'transfer' | 'reset' | 'clearAll';
-    amount: number;
-    from?: string;
-    to?: string;
-}
-
-interface TransactionHistory {
-    [userid: string]: Transaction[];
-}
+import { MongoClient, Collection } from 'mongodb';
 
 class EconomySystem {
-    private data: EconomyData = {};
-    private transactions: TransactionHistory = {};
-    private db?: Db;
-    private balancesCollection?: Collection;
-    private transactionsCollection?: Collection;
+    data: Record<string, number> = {};
+    filePath: string;
+    balancesCollection: Collection | null;
 
-    constructor() {
-        if (Config.useMongoDB) {
-            this.connectToMongoDB();
-        } else {
-            this.loadFromJSON();
+    constructor(filePath: string, balancesCollection: Collection | null = null) {
+        this.filePath = filePath;
+        this.balancesCollection = balancesCollection;
+
+        if (!this.balancesCollection) {
+            this.loadData();
         }
     }
 
-    public async connectToMongoDB() {
-        try {
-            const client = new MongoClient(Config.mongoURI);
-            await client.connect();
-            this.db = client.db(Config.mongoDatabase);
-            this.balancesCollection = this.db.collection('economy_balances');
-            this.transactionsCollection = this.db.collection('economy_transactions');
-        } catch (e) {
-            console.error("[Economy] Failed to connect to MongoDB:", e);
+    async loadData() {
+        if (!this.filePath) throw new Error("filePath is not set for FS storage.");
+        if (FS(this.filePath).existsSync()) {
+            this.data = JSON.parse(FS(this.filePath).readIfExistsSync() || "{}");
         }
     }
 
-    public loadFromJSON() {
-        try {
-            if (!FS(CURRENCY_FILE).existsSync()) {
-                FS(CURRENCY_FILE).writeSync('{}');
-            }
-            if (!FS(TRANSACTION_FILE).existsSync()) {
-                FS(TRANSACTION_FILE).writeSync('{}');
-            }
+    async getBalance(userid: string): Promise<number> {
+        userid = userid.toLowerCase();
 
-            this.data = JSON.parse(FS(CURRENCY_FILE).readSync() || '{}');
-            this.transactions = JSON.parse(FS(TRANSACTION_FILE).readSync() || '{}');
-        } catch (e) {
-            console.error("[Economy] Failed to load JSON data:", e);
-            this.data = {};
-            this.transactions = {};
-        }
-    }
-
-    public saveToJSON() {
-        FS(CURRENCY_FILE).writeUpdate(() => JSON.stringify(this.data, null, 2));
-        FS(TRANSACTION_FILE).writeUpdate(() => JSON.stringify(this.transactions, null, 2));
-    }
-
-	async getBalance(userid: string): Promise<number> {
-    userid = userid.toLowerCase(); // Ensure case consistency
-
-    // Check MongoDB first
-    if (this.balancesCollection) {
-        const user = await this.balancesCollection.findOne({ userid });
-        if (user) return user.balance;
-    }
-
-    // Fallback to FS storage
-    return this.data[userid] || 0;
-	}
-
-	async addCurrency(userid: string, amount: number): Promise<void> {
-    userid = userid.toLowerCase(); // Ensure consistency
-
-    if (this.balancesCollection) {
-        // MongoDB Mode: Update balance in the database
-        await this.balancesCollection.updateOne(
-            { userid },
-            { $inc: { balance: amount } },
-            { upsert: true }
-        );
-    } else {
-        // FS Mode: Update the local JSON storage
-        if (!this.data[userid]) this.data[userid] = 0;
-        this.data[userid] += amount;
-
-        // Save to JSON file
-        FS(this.filePath).writeUpdate(() => JSON.stringify(this.data, null, 2));
-    }
-	}
-
-    async removeCurrency(userid: string, amount: number, from?: string): Promise<boolean> {
-        if (amount <= 0) return false;
-        
         if (this.balancesCollection) {
             const user = await this.balancesCollection.findOne({ userid });
-            if (!user || user.balance < amount) return false;
-            
+            return user ? user.balance : 0;
+        }
+
+        return this.data[userid] || 0;
+    }
+
+    async addCurrency(userid: string, amount: number): Promise<void> {
+        userid = userid.toLowerCase();
+        if (amount <= 0) throw new Error("Amount must be greater than zero.");
+
+        if (this.balancesCollection) {
+            await this.balancesCollection.updateOne(
+                { userid },
+                { $inc: { balance: amount } },
+                { upsert: true }
+            );
+        } else {
+            if (!this.filePath) throw new Error("filePath is undefined in FS mode.");
+            if (!this.data[userid]) this.data[userid] = 0;
+            this.data[userid] += amount;
+
+            FS(this.filePath).writeUpdate(() => JSON.stringify(this.data, null, 2));
+        }
+    }
+
+    async removeCurrency(userid: string, amount: number): Promise<void> {
+        userid = userid.toLowerCase();
+        if (amount <= 0) throw new Error("Amount must be greater than zero.");
+
+        const balance = await this.getBalance(userid);
+        if (balance < amount) throw new Error("Insufficient funds.");
+
+        if (this.balancesCollection) {
             await this.balancesCollection.updateOne(
                 { userid },
                 { $inc: { balance: -amount } }
             );
-            await this.logTransaction(userid, 'remove', amount, from);
         } else {
-            if (!this.data[userid] || this.data[userid] < amount) return false;
-            this.data[userid] -= amount;
-            this.logTransaction(userid, 'remove', amount, from);
-            this.saveToJSON();
+            if (!this.filePath) throw new Error("filePath is undefined in FS mode.");
+            this.data[userid] = Math.max(0, balance - amount);
+
+            FS(this.filePath).writeUpdate(() => JSON.stringify(this.data, null, 2));
         }
-        
-        return true;
     }
 
-    async transferCurrency(fromUser: string, toUser: string, amount: number): Promise<boolean> {
-        if (amount <= 0 || fromUser === toUser) return false;
-        
+    async transferCurrency(fromUser: string, toUser: string, amount: number): Promise<void> {
+        fromUser = fromUser.toLowerCase();
+        toUser = toUser.toLowerCase();
+        if (fromUser === toUser) throw new Error("You cannot transfer money to yourself.");
+        if (amount <= 0) throw new Error("Amount must be greater than zero.");
+
+        const senderBalance = await this.getBalance(fromUser);
+        if (senderBalance < amount) throw new Error("Insufficient funds.");
+
+        await this.removeCurrency(fromUser, amount);
+        await this.addCurrency(toUser, amount);
+    }
+
+    async resetAll(): Promise<void> {
         if (this.balancesCollection) {
-            const sender = await this.balancesCollection.findOne({ userid: fromUser });
-            if (!sender || sender.balance < amount) return false;
-            
-            await this.balancesCollection.updateOne({ userid: fromUser }, { $inc: { balance: -amount } });
-            await this.balancesCollection.updateOne({ userid: toUser }, { $inc: { balance: amount } }, { upsert: true });
-            await this.logTransaction(fromUser, 'transfer', amount, fromUser, toUser);
+            await this.balancesCollection.deleteMany({});
         } else {
-            if (!this.data[fromUser] || this.data[fromUser] < amount) return false;
-            this.data[fromUser] -= amount;
-            this.data[toUser] = (this.data[toUser] || 0) + amount;
-            this.logTransaction(fromUser, 'transfer', amount, fromUser, toUser);
-            this.saveToJSON();
+            this.data = {};
+            FS(this.filePath).writeUpdate(() => "{}");
         }
-        
-        return true;
     }
 
-    async deleteUser(userid: string): Promise<boolean> {
+    async deleteUser(userid: string): Promise<void> {
+        userid = userid.toLowerCase();
+
         if (this.balancesCollection) {
             await this.balancesCollection.deleteOne({ userid });
-            await this.transactionsCollection?.deleteOne({ userid });
         } else {
             delete this.data[userid];
-            delete this.transactions[userid];
-            this.saveToJSON();
+            FS(this.filePath).writeUpdate(() => JSON.stringify(this.data, null, 2));
         }
-        
-        return true;
     }
 
-    async getTransactionSummary(userid: string): Promise<{ added: number; removed: number; transferred: number }> {
-        let history: Transaction[] = [];
-        if (this.transactionsCollection) {
-            history = await this.transactionsCollection.find({ userid }).toArray();
+    async getRichestUsers(limit: number = 20): Promise<{ user: string; balance: number }[]> {
+        if (this.balancesCollection) {
+            const users = await this.balancesCollection.find().sort({ balance: -1 }).limit(limit).toArray();
+            return users.map(user => ({ user: user.userid, balance: user.balance }));
         } else {
-            history = this.transactions[userid] || [];
-        }
-        
-        return history.reduce(
-            (summary, transaction) => {
-                if (transaction.type === 'add') summary.added += transaction.amount;
-                if (transaction.type === 'remove') summary.removed += transaction.amount;
-                if (transaction.type === 'transfer') summary.transferred += transaction.amount;
-                return summary;
-            },
-            { added: 0, removed: 0, transferred: 0 }
-        );
-    }
-
-    async getInactiveUsers(days: number = 30): Promise<string[]> {
-        const cutoffTime = Date.now() - days * 24 * 60 * 60 * 1000;
-        
-        if (this.transactionsCollection) {
-            const users = await this.transactionsCollection.find({}).toArray();
-            return users
-                .filter(user => user.transactions.every((t: Transaction) => t.timestamp < cutoffTime))
-                .map(user => user.userid);
-        }
-        
-        return Object.entries(this.transactions)
-            .filter(([_, history]) => history.every(transaction => transaction.timestamp < cutoffTime))
-            .map(([id]) => id);
-    }
-
-    private async logTransaction(userid: string, type: 'add' | 'remove' | 'transfer' | 'reset' | 'clearAll', amount: number, from?: string, to?: string) {
-        const transaction: Transaction = { timestamp: Date.now(), type, amount, from, to };
-
-        if (this.transactionsCollection) {
-            await this.transactionsCollection.updateOne(
-                { userid },
-                { $push: { transactions: transaction } },
-                { upsert: true }
-            );
-        } else {
-            if (!this.transactions[userid]) this.transactions[userid] = [];
-            this.transactions[userid].push(transaction);
-            this.saveToJSON();
+            return Object.entries(this.data)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, limit)
+                .map(([user, balance]) => ({ user, balance }));
         }
     }
 }
-export const economy = new EconomySystem();
+
+// Initialize economy system with both FS and MongoDB support
+const mongoUri = process.env.MONGO_URI || '';
+const mongoClient = mongoUri ? new MongoClient(mongoUri) : null;
+const database = mongoClient ? mongoClient.db('pokemonshowdown') : null;
+const balancesCollection = database ? database.collection('balances') : null;
+
+export const economy = new EconomySystem('databases/economy.json', balancesCollection);
