@@ -37,7 +37,7 @@ function getBalance(userID: string): number {
 // Give money
 function giveMoney(userID: string, amount: number) {
     const economy = loadEconomy();
-    if (!economy[userID]) economy[userID] = { balance: 0, bank: 0 };
+    if (!economy[userID]) economy[userID] = { balance: 0};
     economy[userID].balance += amount;
     saveEconomy(economy);
 }
@@ -57,7 +57,7 @@ function transferMoney(fromID: string, toID: string, amount: number): string {
     if (amount <= 0) return "Invalid amount.";
 
     economy[fromID].balance -= amount;
-    if (!economy[toID]) economy[toID] = { balance: 0, bank: 0 };
+    if (!economy[toID]) economy[toID] = { balance: 0};
     economy[toID].balance += amount;
     saveEconomy(economy);
     return `You sent ${amount} PokéCoins to ${toID}.`;
@@ -67,14 +67,14 @@ function transferMoney(fromID: string, toID: string, amount: number): string {
 function getRichestUsers(start: number, end: number): string {
     const economy = loadEconomy();
     const sortedUsers = Object.entries(economy)
-        .sort(([, a], [, b]) => (b.balance + b.bank) - (a.balance + a.bank))
+        .sort(([, a], [, b]) => (b.balance) - (a.balance)
         .slice(start - 1, end);
 
     if (sortedUsers.length === 0) return "No users found in this range.";
 
     let leaderboard = `<div style="max-height: 300px; overflow-y: auto;"><b>🏆 Richest Users Leaderboard</b><br>`;
-    sortedUsers.forEach(([userID, { balance, bank }], index) => {
-        leaderboard += `#${start + index}: ${userID} - ${balance + bank} PokéCoins<br>`;
+    sortedUsers.forEach(([userID, { balance }], index) => {
+        leaderboard += `#${start + index}: ${userID} - ${balance} PokéCoins<br>`;
     });
     leaderboard += "</div>";
 
