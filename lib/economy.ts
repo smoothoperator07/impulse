@@ -91,13 +91,18 @@ class EconomySystem {
         FS(TRANSACTION_FILE).writeUpdate(() => JSON.stringify(this.transactions, null, 2));
     }
 
-    async getBalance(userid: string): Promise<number> {
-        if (this.balancesCollection) {
-            const user = await this.balancesCollection.findOne({ userid });
-            return user ? user.balance : 0;
-        }
-        return this.data[userid] || 0;
+	async getBalance(userid: string): Promise<number> {
+    userid = userid.toLowerCase(); // Ensure case consistency
+
+    // Check MongoDB first
+    if (this.balancesCollection) {
+        const user = await this.balancesCollection.findOne({ userid });
+        if (user) return user.balance;
     }
+
+    // Fallback to FS storage
+    return this.data[userid] || 0;
+	}
 
     async addCurrency(userid: string, amount: number, from?: string): Promise<boolean> {
         if (amount <= 0) return false;
