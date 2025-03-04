@@ -1,4 +1,4 @@
-import { FS } from './fs';
+/**import { FS } from './fs';
 
 const CURRENCY_FILE = 'databases/economy/economy.json';
 const TRANSACTION_FILE = 'databases/economy/economy-transactions.json';
@@ -163,3 +163,4 @@ class EconomySystem {
 }
 
 export default new EconomySystem();
+**/
