@@ -1,4 +1,5 @@
-import { economy } from '../../lib/economy';
+import { EconomySystem } from '../../lib/economy';
+const economy = new EconomySystem();
 
 export const commands: Chat.ChatCommands = {
 	balance: async function (target, room, user) {
