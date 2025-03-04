@@ -37,7 +37,7 @@ function getBalance(userID: string): number {
 // Give money
 function giveMoney(userID: string, amount: number) {
     const economy = loadEconomy();
-    if (!economy[userID]) economy[userID] = { balance: 0};
+    if (!economy[userID]) economy[userID] = { balance: 0 };
     economy[userID].balance += amount;
     saveEconomy(economy);
 }
@@ -57,7 +57,7 @@ function transferMoney(fromID: string, toID: string, amount: number): string {
     if (amount <= 0) return "Invalid amount.";
 
     economy[fromID].balance -= amount;
-    if (!economy[toID]) economy[toID] = { balance: 0};
+    if (!economy[toID]) economy[toID] = { balance: 0 };
     economy[toID].balance += amount;
     saveEconomy(economy);
     return `You sent ${amount} PokéCoins to ${toID}.`;
@@ -66,8 +66,11 @@ function transferMoney(fromID: string, toID: string, amount: number): string {
 // Get the richest users leaderboard
 function getRichestUsers(start: number, end: number): string {
     const economy = loadEconomy();
-    const sortedUsers = Object.entries(economy).sort(([, a], [, b]) => (b.balance) - (a.balance).slice(start - 1, end);
-	if (sortedUsers.length === 0) return "No users found in this range.";
+    const sortedUsers = Object.entries(economy)
+        .sort(([, a], [, b]) => b.balance - a.balance)
+        .slice(start - 1, end); // Slice after sorting
+
+    if (sortedUsers.length === 0) return "No users found in this range.";
 
     let leaderboard = `<div style="max-height: 300px; overflow-y: auto;"><b>🏆 Richest Users Leaderboard</b><br>`;
     sortedUsers.forEach(([userID, { balance }], index) => {
@@ -78,27 +81,31 @@ function getRichestUsers(start: number, end: number): string {
     return leaderboard;
 }
 
-export { getBalance, giveMoney, takeMoney, loadEconomy, saveEconomy};
-
 // Get help information
 function getEconomyHelp(): string {
-    return `<div style="max-height: 300px; overflow-y: auto;"><b>💰 Economy Commands Help</b><br>` +
-	`<b>/balance [user]</b> - Check your or another user's balance.<br>` +
-   `<b>/givemoney [user], [amount]</b> - Give money to a user (Admin only).<br>` +
-	`<b>/takemoney [user], [amount]</b> - Take money from a user (Admin only).<br>` +
-   `<b>/transfermoney [user], [amount]</b> - Transfer money to another user.<br>` +
-   `<b>/richestusers [start]-[end]</b> - View the richest users leaderboard.<br>` +
-	`<b>/economyhelp</b> - View this help menu.<br></div>`;
+    return `
+    <div style="max-height: 300px; overflow-y: auto;">
+        <b>💰 Economy Commands Help</b><br>
+        <b>/balance [user]</b> - Check your or another user's balance.<br>
+        <b>/givemoney [user], [amount]</b> - Give money to a user (Admin only).<br>
+        <b>/takemoney [user], [amount]</b> - Take money from a user (Admin only).<br>
+        <b>/transfermoney [user], [amount]</b> - Transfer money to another user.<br>
+        <b>/richestusers [start]-[end]</b> - View the richest users leaderboard.<br>
+        <b>/economyhelp</b> - View this help menu.<br>
+    </div>
+    `;
 }
+
+export { getBalance, giveMoney, takeMoney, loadEconomy, saveEconomy };
 
 // Economy Commands
 export const commands: ChatCommands = {
     balance(target, room, user) {
-		 this.checkChat();
-		 this.runBroadcast();
-		 const targetUser = target.trim() || user.id;
-		 return this.sendReply(`${targetUser} has ${getBalance(targetUser)} PokéCoins.`);
-	 },
+        this.checkChat();
+        this.runBroadcast();
+        const targetUser = target.trim() || user.id;
+        return this.sendReply(`${targetUser} has ${getBalance(targetUser)} PokéCoins.`);
+    },
 
     givemoney(target, room, user) {
         this.checkCan('globalban');
@@ -121,16 +128,16 @@ export const commands: ChatCommands = {
     },
 
     transfermoney(target, room, user) {
-		 this.checkChat();
-		 const [targetUser, amountStr] = target.split(',').map(x => x.trim());
-		 const amount = Number(amountStr);
-		 if (!targetUser || isNaN(amount) || amount <= 0) return this.sendReply("Usage: /transfermoney [user], [amount]");
-		 return this.sendReply(transferMoney(user.id, targetUser, amount));
-	 },
+        this.checkChat();
+        const [targetUser, amountStr] = target.split(',').map(x => x.trim());
+        const amount = Number(amountStr);
+        if (!targetUser || isNaN(amount) || amount <= 0) return this.sendReply("Usage: /transfermoney [user], [amount]");
+        return this.sendReply(transferMoney(user.id, targetUser, amount));
+    },
 
-	richestusers(target, room, user) {
-		this.checkChat();
-		this.runBroadcast();
+    richestusers(target, room, user) {
+        this.checkChat();
+        this.runBroadcast();
         if (!target) return this.sendReply("Usage: /richestusers [start]-[end] (e.g., /richestusers 1-10)");
 
         const [startStr, endStr] = target.split('-').map(x => x.trim());
@@ -142,9 +149,9 @@ export const commands: ChatCommands = {
         return this.sendReplyBox(getRichestUsers(start, end));
     },
 
-	economyhelp(target, room, user) {
-		this.checkChat();
-		this.runBroadcast();
-		return this.sendReplyBox(getEconomyHelp());
+    economyhelp(target, room, user) {
+        this.checkChat();
+        this.runBroadcast();
+        return this.sendReplyBox(getEconomyHelp());
     },
 };
