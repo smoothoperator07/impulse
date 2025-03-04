@@ -1,3 +1,5 @@
+import { giveMoney, takeMoney, saveEconomy, loadEconomy, transferMoney } from '../../chat-plugins';
+
 // Define the possible prizes on the roulette wheel
 const roulettePrizes = [
     { type: 'money', amount: 50, icon: '💰' },
