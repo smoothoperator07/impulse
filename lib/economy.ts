@@ -1,7 +1,7 @@
 /**
  * Economy System for Pokémon Showdown
  * 
- * Author: [Your Name]
+ * Author: Clark Jones ( Prince Sky)
  * 
  * Features:
  * - Currency system with JSON or MongoDB storage
