@@ -1,5 +1,5 @@
 import { FS } from '../../lib';
-import { economy } from '../../lib'; // Adjust the import path as needed
+import { economy } from '../../lib';
 
 export const commands: Chat.ChatCommands = {
   balance(target, room, user) {
@@ -76,15 +76,27 @@ export const commands: Chat.ChatCommands = {
     }
 },
 
-    richestuser(target, room, user) {
-        const topUsers = economy.getRichestUsers();
-        if (!topUsers.length) return this.sendReply("No users found in the economy system.");
-        let msg = `Richest Users:\n`;
-        for (let i = 0; i < topUsers.length; i++) {
-            msg += `${i + 1}. ${topUsers[i].user}: ${topUsers[i].balance} currency\n`;
-        }
-        return this.sendReplyBox(msg);
-    },
+	richestuser(target, room, user) {
+    const isAllMode = target.toLowerCase() === 'all';
+    const limit = isAllMode ? 100 : 20;
+    
+    if (!isAllMode) this.runBroadcast(); // Allow broadcasting only for top 20
+
+    const topUsers = economy.getRichestUsers().slice(0, limit);
+    if (!topUsers.length) return this.sendReplyBox("No users found in the economy system.");
+
+    let msg = `<div style="max-height: 300px; overflow-y: auto; border: 1px solid #444; background: #2b2b2b; border-radius: 8px; padding: 8px;">`;
+    msg += `<strong style="font-size: 16px; color: #fff;">💰 Richest Users (${limit}) 💰</strong><br><br>`;
+
+    for (let i = 0; i < topUsers.length; i++) {
+        let rankColor = (i === 0) ? '#ffd700' : (i === 1) ? '#c0c0c0' : (i === 2) ? '#cd7f32' : '#fff';
+        msg += `<span style="color: ${rankColor}; font-weight: bold;">${i + 1}. ${topUsers[i].user}</span>: <span style="color: #7fffd4;">${topUsers[i].balance} currency</span><br>`;
+    }
+
+    msg += `</div>`;
+
+    return this.sendReplyBox(msg);
+},
 
   deleteuser(target, room, user) {
     if (!user.can('declare')) return this.errorReply("Access denied.");
@@ -127,5 +139,21 @@ export const commands: Chat.ChatCommands = {
     }
     return this.sendReplyBox(msg);
   },
+	
+	economyhelp(target, room, user) {
+		this.runBroadcast(); // Allows broadcasting with !economyhelp
+		this.sendReplyBox(
+        `<div style="max-height: 300px; overflow-y: auto; border: 1px solid #444; background: #2b2b2b; border-radius: 8px; padding: 8px; color: #fff;">` +
+            `<strong style="font-size: 16px; color: #ffd700;">💰 Economy Commands 💰</strong><br><br>` +
+            `<strong>/balance [user]</strong> - Check your or another user's balance.<br>` +
+            `<strong>/givemoney [user], [amount]</strong> - Give currency to a user (Admin only).<br>` +
+            `<strong>/takemoney [user], [amount]</strong> - Remove currency from a user (Admin only).<br>` +
+            `<strong>/transfermoney [user], [amount]</strong> - Transfer currency to another user.<br>` +
+            `<strong>/richestuser</strong> - View the top 20 richest users (broadcastable).<br>` +
+            `<strong>/richestuser all</strong> - View the top 100 richest users (private).<br>` +
+            `<strong>/reset</strong> - Reset all balances (Admin only, not broadcastable).<br>` +
+            `<strong>/deleteuser [user]</strong> - Remove a user from the economy system (Admin only).<br>` +
+        `</div>`);
+},
 };
 
