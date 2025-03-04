@@ -15,7 +15,7 @@ interface EconomyData {
 }
 
 // Load economy data
-export loadEconomy(): EconomyData {
+function loadEconomy(): EconomyData {
     try {
         return JSON.parse(FS(ECONOMY_FILE).readIfExistsSync() || '{}');
     } catch {
