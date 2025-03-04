@@ -5,7 +5,7 @@ export const commands: Chat.ChatCommands = {
   balance(target, room, user) {
       if (!target) target = user.name;
       this.runBroadcast(); // Allows broadcasting in chat
-      const balance = economy.getBalance(target);
+      const balance = getBalance(target);
       return this.sendReplyBox(`<strong>${target}</strong> has <strong>${balance}</strong> currency.`);
     },
   
