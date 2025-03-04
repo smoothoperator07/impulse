@@ -104,24 +104,25 @@ class EconomySystem {
     return this.data[userid] || 0;
 	}
 
-    async addCurrency(userid: string, amount: number, from?: string): Promise<boolean> {
-        if (amount <= 0) return false;
-        
-        if (this.balancesCollection) {
-            await this.balancesCollection.updateOne(
-                { userid },
-                { $inc: { balance: amount } },
-                { upsert: true }
-            );
-            await this.logTransaction(userid, 'add', amount, from);
-        } else {
-            this.data[userid] = (this.data[userid] || 0) + amount;
-            this.logTransaction(userid, 'add', amount, from);
-            this.saveToJSON();
-        }
-        
-        return true;
+	async addCurrency(userid: string, amount: number): Promise<void> {
+    userid = userid.toLowerCase(); // Ensure consistency
+
+    if (this.balancesCollection) {
+        // MongoDB Mode: Update balance in the database
+        await this.balancesCollection.updateOne(
+            { userid },
+            { $inc: { balance: amount } },
+            { upsert: true }
+        );
+    } else {
+        // FS Mode: Update the local JSON storage
+        if (!this.data[userid]) this.data[userid] = 0;
+        this.data[userid] += amount;
+
+        // Save to JSON file
+        FS(this.filePath).writeUpdate(() => JSON.stringify(this.data, null, 2));
     }
+	}
 
     async removeCurrency(userid: string, amount: number, from?: string): Promise<boolean> {
         if (amount <= 0) return false;
