@@ -2,12 +2,14 @@ import { FS } from '../../lib';
 import { economy } from '../../lib/economy';
 
 export const commands: Chat.ChatCommands = {
-  balance(target, room, user) {
-      if (!target) target = user.name;
-      this.runBroadcast(); // Allows broadcasting in chat
-      const balance = economy.getBalance(target);
-      return this.sendReplyBox(`<strong>${target}</strong> has <strong>${balance}</strong> currency.`);
-    },
+  async balance(target, room, user) {
+    this.runBroadcast();
+
+    if (!target) target = user.name;
+    const balance = await economy.getBalance(target); // Ensure async handling
+
+    this.sendReplyBox(`<strong>${target}</strong> has <strong>${balance}</strong> currency.`);
+},
   
   givemoney(target, room, user) {
     if (!user.can('declare')) return this.errorReply("Access denied.");
