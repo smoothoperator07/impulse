@@ -15,7 +15,7 @@ interface EconomyData {
 }
 
 // Load economy data
-global.loadEconomy(): EconomyData {
+export loadEconomy(): EconomyData {
     try {
         return JSON.parse(FS(ECONOMY_FILE).readIfExistsSync() || '{}');
     } catch {
@@ -24,18 +24,18 @@ global.loadEconomy(): EconomyData {
 }
 
 // Save economy data
-global.saveEconomy(data: EconomyData) {
+export saveEconomy(data: EconomyData) {
     FS(ECONOMY_FILE).writeUpdate(() => JSON.stringify(data, null, 2));
 }
 
 // Economy Functions
-global.getBalance(userID: string): number {
+export getBalance(userID: string): number {
     const economy = loadEconomy();
     return economy[userID]?.balance || 0;
 }
 
 // Give money
-global.giveMoney(userID: string, amount: number) {
+export giveMoney(userID: string, amount: number) {
     const economy = loadEconomy();
     if (!economy[userID]) economy[userID] = { balance: 0 };
     economy[userID].balance += amount;
@@ -43,7 +43,7 @@ global.giveMoney(userID: string, amount: number) {
 }
 
 // Take money
-global.takeMoney(userID: string, amount: number) {
+export takeMoney(userID: string, amount: number) {
     const economy = loadEconomy();
     if (!economy[userID]) return;
     economy[userID].balance = Math.max(0, economy[userID].balance - amount);
@@ -51,7 +51,7 @@ global.takeMoney(userID: string, amount: number) {
 }
 
 // Transfer money
-global.transferMoney(fromID: string, toID: string, amount: number): string {
+export transferMoney(fromID: string, toID: string, amount: number): string {
     const economy = loadEconomy();
     if (!economy[fromID] || economy[fromID].balance < amount) return "You don't have enough PokéCoins.";
     if (amount <= 0) return "Invalid amount.";
@@ -64,7 +64,7 @@ global.transferMoney(fromID: string, toID: string, amount: number): string {
 }
 
 // Get the richest users leaderboard
-global.getRichestUsers(start: number, end: number): string {
+export getRichestUsers(start: number, end: number): string {
     const economy = loadEconomy();
     const sortedUsers = Object.entries(economy)
         .sort(([, a], [, b]) => b.balance - a.balance)
@@ -95,8 +95,6 @@ function getEconomyHelp(): string {
     </div>
     `;
 }
-
-export { getBalance, giveMoney, takeMoney, loadEconomy, saveEconomy };
 
 // Economy Commands
 export const commands: ChatCommands = {
