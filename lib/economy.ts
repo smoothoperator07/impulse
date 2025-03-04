@@ -1,4 +1,4 @@
-import { FS } from '../../lib/fs';
+import { FS } from './fs';
 
 const CURRENCY_FILE = 'config/economy.json';
 const TRANSACTION_FILE = 'config/economy-transactions.json';
