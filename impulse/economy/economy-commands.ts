@@ -124,14 +124,14 @@ export const commands: Chat.ChatCommands = {
             await resetAllBalances();
             this.sendReply(`All users' balances have been reset to 0.`);
         },
-
-		 async help(target, room, user) {
+			
+			async help(target, room, user) {
         this.checkBroadcast(); // Allow + and higher to broadcast
 
-        let content = '<div class="infobox" style="border: 2px solid #FFD700;';
-        content += ' color: #FFD700; padding: 8px; border-radius: 8px; text-shadow: 1px 1px 2px black;">';
+        let content = '<div class="infobox" style="border: 2px solid #FFD700; background: rgba(0, 0, 0, 0.8);';
+        content += ' color: #FFD700; padding: 8px; border-radius: 8px;">';
         content += '<center>';
-        content += '<h2 style="color: #FFEA00; text-shadow: 0 0 8px #FFD700;">⚡ Pokémon Showdown Economy ⚡</h2>';
+        content += '<h2 style="color: #FFEA00; text-shadow: 0 0 8px #FFD700; background: none; margin: 0; padding: 0;">⚡ Pokémon Showdown Economy ⚡</h2>';
         content += '<p><em>Manage your PokéDollars and transactions!</em></p>';
         content += '</center>';
         content += '<strong style="color: #FFDD44;">Commands:</strong><br>';
