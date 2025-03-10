@@ -78,31 +78,42 @@ function displaySlotResult(user: User, finalSlots: string[], wonAmount?: number,
 
 export const commands: Chat.ChatCommands = {
     slots: {
-        async spin(target, room, user) {
-            if (!room || room.roomid !== SLOT_ROOM) {
-                return this.errorReply(`Casino games can only be played in the "${SLOT_ROOM}" room.`);
-            }
+		 async spin(target, room, user) {
+    if (!room || room.roomid !== SLOT_ROOM) {
+        return this.errorReply(`Casino games can only be played in the "${SLOT_ROOM}" room.`);
+    }
 
-            this.checkChat();
-            if (!this.runBroadcast()) return;
+    this.checkChat();
+    if (!this.runBroadcast()) return;
 
-            const userBalance = await getBalance(user.id);
-            if (userBalance < SLOT_COST) {
-                return this.errorReply(`You need at least ${SLOT_COST} Pokédollars to play. You are missing ${SLOT_COST - userBalance}.`);
-            }
+    const userBalance = await getBalance(user.id);
+    if (userBalance < SLOT_COST) {
+        return this.errorReply(`You need at least ${SLOT_COST} Pokédollars to play. You are missing ${SLOT_COST - userBalance}.`);
+    }
 
-            const resultSlots = [spin(), spin(), spin()];
-            const winChance = 70 + availableSlots.indexOf(resultSlots[0]) * 3;
-            const won = Math.random() * 100 >= winChance ? resultSlots[0] : null;
+    // Initial rolling message (no images yet)
+    this.sendReply(`|uhtml|slot-${user.id}|<div style="text-align: center;">
+        <h2>🎰 Pokémon Showdown Slot Machine 🎰</h2>
+        <p><strong>${user.name}</strong> pulls the lever...</p>
+        <p><strong>Rolling...</strong></p>
+    </div>`);
 
-            if (won) {
-                await addMoney(user.id, 15, 'Slot Machine Win'); // Fixed winning amount for now
-            } else {
-                await takeMoney(user.id, SLOT_COST, 'Slot Machine Spin');
-            }
+    // Simulate a real slot machine by delaying the result
+    setTimeout(async () => {
+        const resultSlots = [spin(), spin(), spin()];
+        const winChance = 70 + availableSlots.indexOf(resultSlots[0]) * 3;
+        const won = Math.random() * 100 >= winChance ? resultSlots[0] : null;
 
-            this.sendReply(displaySlotResult(user, resultSlots, won ? 15 : 0));
-        },
+        if (won) {
+            await addMoney(user.id, 15, 'Slot Machine Win');
+        } else {
+            await takeMoney(user.id, SLOT_COST, 'Slot Machine Spin');
+        }
+
+        // Update the rolling message with the final result
+        this.sendReplyBox(displaySlotResult(user, resultSlots, won ? 15 : 0));
+    }, 3000); // 3-second delay for rolling effect
+		 },
 
         async testspin(target, room, user) {
             if (!room || room.roomid !== SLOT_ROOM) {
