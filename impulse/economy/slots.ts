@@ -25,9 +25,9 @@ function buildSlotUI(user: User, resultSlots: string[], won: string | null, isTe
     content += `<p><strong>${user.name}</strong> pulls the lever...</p>`;
 
     // Center the sprite section
-	content += `<div style="display: flex; justify-content: center; align-items: center; gap: 30px; padding: 20px;">`;
+	content += `<div style="display: flex; justify-content: center; align-items: center; gap: 20px; padding: 10px;">`;
 	for (const slot of resultSlots) {
-        content += `<br><br><br><br><br><br><br><br><br><br><br><br><br><img src="${slotSprites[slot]}" width="50" style="border: 2px solid #ffcc00; border-radius: 5px; display: block;">`;
+        content += `<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><img src="${slotSprites[slot]}" width="60" style="border: 2px solid #ffcc00; border-radius: 2px; display: block;">`;
     }
     content += `</div>`;
 
