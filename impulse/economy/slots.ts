@@ -17,13 +17,24 @@ function spin(): string {
 }
 
 // Helper function to build the slot machine Ui
-function buildSlotUI(user: User, resultSlots: string[]): string {
-    let content = `<div style="background: #0d0d0d; color: white; border: 1px solid #888888; border-radius: 8px; padding: 8px; max-width: 100%; text-align: center; box-shadow: 0px 0px 5px rgba(255, 255, 255, 0.2);">`;
+function buildSlotUI(user: User, resultSlots: string[], wonAmount: number): string {
+    let content = `<div style="background: #0d0d0d; color: white; border: 1px solid #4f4f4f; border-radius: 8px; padding: 8px; max-width: 100%; text-align: center;">`;
+    content += `<h2 style="margin: 0; padding: 4px; font-size: 14px; font-weight: bold; background: #222; border-bottom: 1px solid #4f4f4f;">Pokémon Showdown Slots</h2>`;
+    content += `<p style="margin: 5px 0; font-size: 11px; color: #bbb;">Try your luck and win big rewards!</p>`;
+
     content += `<center>`;
     for (const slot of resultSlots) {
-        content += `<img src="${slotSprites[slot]}" width="50" style="border: 1px solid #888888; border-radius: 5px; display: inline-block; margin: 0 5px;">`;
+        content += `<img src="${slotSprites[slot]}" width="50" style="border: 1px solid #4f4f4f; border-radius: 5px; display: inline-block; margin: 0 5px;">`;
     }
     content += `</center>`;
+
+    //  Show win/loss message with amount if won
+    content += `<p style="margin-top: 8px; font-size: 12px; font-weight: bold; color: ${wonAmount > 0 ? '#66ff66' : '#ff6666'};">`;
+    content += wonAmount > 0 
+        ? `🎉 Congratulations! You won <strong>${wonAmount} Pokédollars!</strong>` 
+        : `😔 Better luck next time!`;
+    content += `</p>`;
+
     content += `</div>`;
 
     return content;
