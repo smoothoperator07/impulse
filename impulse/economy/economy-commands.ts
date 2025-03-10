@@ -126,9 +126,10 @@ export const commands: Chat.ChatCommands = {
         },
 
 		 async help(target, room, user) {
-        this.checkBroadcast(); // Allow + and higher to broadcast
-        let content = '<div class="infobox" style="border: 2px solid #FFD700; background: linear-gradient(45deg, #111, #222);';
-        content += ' color: #FFD700; padding: 8px; border-radius: 8px;">';
+        this.checkCan('broadcast'); // Allow + and higher to broadcast
+
+        let content = '<div class="infobox" style="border: 2px solid #FFD700; background: rgba(0, 0, 0, 0.8);';
+        content += ' color: #FFD700; padding: 8px; border-radius: 8px; text-shadow: 1px 1px 2px black;">';
         content += '<center>';
         content += '<h2 style="color: #FFEA00; text-shadow: 0 0 8px #FFD700;">⚡ Pokémon Showdown Economy ⚡</h2>';
         content += '<p><em>Manage your PokéDollars and transactions!</em></p>';
