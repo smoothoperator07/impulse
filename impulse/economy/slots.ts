@@ -19,14 +19,17 @@ function spin(): string {
 // Helper function to build the slot machine UI
 function buildSlotUI(user: User, resultSlots: string[]): string {
 
-    let content = `<center>`; // Use <center> tag for full compatibility
+    let content = `<div style="background: #0d0d0d; color: white; border: 1px solid #4f4f4f; border-radius: 8px; padding: 10px; max-width: 100%; text-align: center;">`;
+    content += `<center>`;
     for (const slot of resultSlots) {
         content += `<img src="${slotSprites[slot]}" width="50" style="border: 2px solid #ffcc00; border-radius: 5px; display: inline-block; margin: 0 5px;">`;
     }
     content += `</center>`;
+    content += `</div>`;
 
     return content;
 }
+
 export const commands: Chat.ChatCommands = {
     slots: {
 		 async spin(target, room, user) {
