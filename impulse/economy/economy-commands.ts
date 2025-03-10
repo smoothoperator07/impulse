@@ -131,7 +131,7 @@ export const commands: Chat.ChatCommands = {
 				content += ' color: #FFD700; padding: 8px; border-radius: 8px;">';
 				content += '<center>';
 				content += '<h2 style="color: #FFEA00; text-shadow: 0 0 8px #FFD700; background: none; margin: 0; padding: 0;">⚡ Pokémon Showdown Economy ⚡</h2>';
-				content += '<p><em>Manage your ${currencyName} and transactions!</em></p>';
+				content += '<p><em>Manage your ' + currencyName + ' and transactions!</em></p>';
 				content += '</center>';
 				content += '<strong style="color: #FFDD44;">Commands:</strong><br>';
 				content += '<strong>/eco balance [user]</strong> - Check your or another user\'s balance.<br>';
