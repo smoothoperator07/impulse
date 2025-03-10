@@ -126,26 +126,24 @@ export const commands: Chat.ChatCommands = {
         },
 			
 			async help(target, room, user) {
-        this.checkBroadcast(); // Allow + and higher to broadcast
-
-        let content = '<div class="infobox" style="border: 2px solid #FFD700; background: rgba(0, 0, 0, 0.8);';
-        content += ' color: #FFD700; padding: 8px; border-radius: 8px;">';
-        content += '<center>';
-        content += '<h2 style="color: #FFEA00; text-shadow: 0 0 8px #FFD700; background: none; margin: 0; padding: 0;">⚡ Pokémon Showdown Economy ⚡</h2>';
-        content += '<p><em>Manage your PokéDollars and transactions!</em></p>';
-        content += '</center>';
-        content += '<strong style="color: #FFDD44;">Commands:</strong><br>';
-        content += '<strong>/eco balance [user]</strong> - Check your or another user\'s balance.<br>';
-        content += '<strong>/eco give [user], [amount], [reason]</strong> - Give money to a user. <span style="color: #FFAA00;">(Requires @ or higher)</span><br>';
-        content += '<strong>/eco take [user], [amount], [reason]</strong> - Take money from a user. <span style="color: #FFAA00;">(Requires @ or higher)</span><br>';
-        content += '<strong>/eco transfer [user], [amount], [reason]</strong> - Transfer money to another user.<br>';
-        content += '<strong>/eco reset [user]</strong> - Reset a user\'s balance. <span style="color: #FFAA00;">(Requires @ or higher)</span><br>';
-        content += '<strong>/eco resetall</strong> - Reset all balances. <span style="color: #FF5500;">(Requires Admin)</span><br>';
-        content += '<strong>/eco transactionlog [user or page number]</strong> - View transaction logs. <span style="color: #FFAA00;">(Requires @ or higher)</span>';
-        content += '</div>';
-
-        this.sendReplyBox(content);
-    },
+				this.checkBroadcast(); // Allow + and higher to broadcast
+				let content = '<div class="infobox" style="border: 2px solid #FFD700; background: rgba(0, 0, 0, 0.8);';
+				content += ' color: #FFD700; padding: 8px; border-radius: 8px;">';
+				content += '<center>';
+				content += '<h2 style="color: #FFEA00; text-shadow: 0 0 8px #FFD700; background: none; margin: 0; padding: 0;">⚡ Pokémon Showdown Economy ⚡</h2>';
+				content += '<p><em>Manage your ${currencyName} and transactions!</em></p>';
+				content += '</center>';
+				content += '<strong style="color: #FFDD44;">Commands:</strong><br>';
+				content += '<strong>/eco balance [user]</strong> - Check your or another user\'s balance.<br>';
+				content += '<strong>/eco give [user], [amount], [reason]</strong> - Give money to a user. <span style="color: #FFAA00;">(Requires @ or higher)</span><br>';
+				content += '<strong>/eco take [user], [amount], [reason]</strong> - Take money from a user. <span style="color: #FFAA00;">(Requires @ or higher)</span><br>';
+				content += '<strong>/eco transfer [user], [amount], [reason]</strong> - Transfer money to another user.<br>';
+				content += '<strong>/eco reset [user]</strong> - Reset a user\'s balance. <span style="color: #FFAA00;">(Requires @ or higher)</span><br>';
+				content += '<strong>/eco resetall</strong> - Reset all balances. <span style="color: #FF5500;">(Requires Admin)</span><br>';
+				content += '<strong>/eco transactionlog [user or page number]</strong> - View transaction logs. <span style="color: #FFAA00;">(Requires @ or higher)</span>';
+				content += '</div>';
+				this.sendReplyBox(content);
+			},
 	 },
 
     economy: 'eco', // Alias for /eco
