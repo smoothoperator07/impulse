@@ -90,27 +90,34 @@ export const commands: Chat.ChatCommands = {
                 this.errorReply(`${targetUser} does not have enough ${currencyName}.`);
             }
         },
-
-        async transfer(target, room, user) {
-            const [targetUser, amountStr, reason] = target.split(',').map(t => t.trim());
-
-            if (!targetUser || !amountStr || isNaN(Number(amountStr)) || Number(amountStr) <= 0 || !reason) {
-                return this.errorReply("Usage: /eco transfer [user], [positive amount], [reason]");
-            }
-
-            const amount = Math.floor(Number(amountStr));
-            const success = await transferMoney(toID(user.name), toID(targetUser), amount, reason);
-
-            if (success) {
-                this.sendReply(`Successfully transferred ${amount} ${currencyName} to ${targetUser}. Reason: ${reason}`);
-
-                // Private notification to recipient
-                let targetU = Users.get(targetUser);
-                if (targetU) targetU.send(`|pm|~|${targetUser}|You have received ${amount} ${currencyName} from ${user.name}. Reason: ${reason}`);
-            } else {
-                this.errorReply("Transfer failed. Check your balance.");
-            }
-        },
+		 
+		 async transfer(target, room, user) {
+			 const [targetUser, amountStr, reason] = target.split(',').map(t => t.trim());
+			 if (!targetUser || !amountStr || isNaN(Number(amountStr)) || Number(amountStr) <= 0 || !reason) {
+				 return this.errorReply("Usage: /eco transfer [user], [positive amount], [reason]");
+			 }
+			 const amount = Math.floor(Number(amountStr));
+			 const senderID = toID(user.name);
+			 const receiverID = toID(targetUser);
+			 if (senderID === receiverID) {
+				 return this.errorReply("You cannot transfer money to yourself.");
+			 }
+			 if (!(await hasBalance(senderID, amount))) {
+				 return this.errorReply(`You do not have enough ${currencyName} to transfer ${amount}.`);
+			 }
+			 const success = await transferMoney(senderID, receiverID, amount, reason);
+			 if (success) {
+				 this.sendReply(`Successfully transferred ${amount} ${currencyName} to ${targetUser}. Reason: ${reason}`);
+				 // Notify the recipient
+				 let targetU = Users.get(receiverID);
+				 if (targetU) {
+					 targetU.send(`|pm|~|${targetU.name}|You have received ${amount} ${currencyName} from ${user.name}. Reason: ${reason}`);
+				 }
+			 } else {
+				 this.errorReply("Transfer failed. Please check your balance and try again.");
+			 },
+	 },
+		 
         async reset(target, room, user) {
             this.checkCan('ban'); // Permission required (@ +)
             const targetUser = toID(target);
@@ -119,12 +126,19 @@ export const commands: Chat.ChatCommands = {
             await resetBalance(targetUser);
             this.sendReply(`Reset ${targetUser}'s balance to 0.`);
         },
-
-        async resetall(target, room, user) {
-            this.checkCan('bypassall'); // Requires admin privileges
-            await resetAllBalances();
-            this.sendReply(`All users' balances have been reset to 0.`);
-        },
+		 
+		 async resetall(target, room, user) {
+			 this.checkCan('bypassall'); // Requires admin privileges
+			 if (!this.confirmedReset) {
+				 this.confirmedReset = true;
+				 return this.errorReply("Run this command again within 30 seconds to confirm resetting all balances.");
+			 }
+			 await resetAllBalances();
+			 this.sendReply(`All users' balances have been reset to 0.`);
+			 this.confirmedReset = false; // Reset confirmation after execution
+			 // Reset confirmation after timeout (prevents bypassing by quickly typing the command twice)
+			 setTimeout(() => { this.confirmedReset = false; }, 30000);
+		 },
 		 
 		 async help(target, room, user) {
 			 this.runBroadcast(); // Allow + and higher to broadcast
