@@ -16,19 +16,19 @@ function spin(): string {
     return availableSlots[Math.floor(Math.random() * availableSlots.length)];
 }
 
-// Helper function to build the slot machine UI
+// Helper function to build the slot machine Ui
 function buildSlotUI(user: User, resultSlots: string[]): string {
-
-    let content = `<div style="background: #0d0d0d; color: white; border: 1px solid #4f4f4f; border-radius: 8px; padding: 10px; max-width: 100%; text-align: center;">`;
+    let content = `<div style="background: #0d0d0d; color: white; border: 1px solid #888888; border-radius: 8px; padding: 8px; max-width: 100%; text-align: center; box-shadow: 0px 0px 5px rgba(255, 255, 255, 0.2);">`;
     content += `<center>`;
     for (const slot of resultSlots) {
-        content += `<img src="${slotSprites[slot]}" width="50" style="border: 2px solid #ffcc00; border-radius: 5px; display: inline-block; margin: 0 5px;">`;
+        content += `<img src="${slotSprites[slot]}" width="50" style="border: 1px solid #888888; border-radius: 5px; display: inline-block; margin: 0 5px;">`;
     }
     content += `</center>`;
     content += `</div>`;
 
     return content;
 }
+
 
 export const commands: Chat.ChatCommands = {
     slots: {
