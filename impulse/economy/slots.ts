@@ -17,7 +17,7 @@ function spin() {
 
 // 🎮 Slot Machine Display Component
 function SlotDisplay({ user, slotOne, slotTwo, slotThree, result, winnings }) { 
-    return `|raw|<style>.slot-container{background:black;padding:10px;border-radius:8px;text-align:center;}.slot-image{padding:5px;margin:5px;border:2px solid gold;border-radius:5px;width:64px;height:64px;}.result-text{color:white;font-weight:bold;}</style><div class="slot-container"><h3 style="color:gold;">🎰 ${user.name}'s Slot Machine 🎰</h3><div><img class="slot-image" src="${getSprite(slotOne)}" /><img class="slot-image" src="${getSprite(slotTwo)}" /><img class="slot-image" src="${getSprite(slotThree)}" /></div><p class="result-text">${result ? `🎉 You won ${winnings} Pokédollars! 🎉` : "😢 Better luck next time!"}</p></div>`; 
+    return `<style>.slot-container{background:black;padding:10px;border-radius:8px;text-align:center;}.slot-image{padding:5px;margin:5px;border:2px solid gold;border-radius:5px;width:64px;height:64px;}.result-text{color:white;font-weight:bold;}</style><div class="slot-container"><h3 style="color:gold;">🎰 ${user.name}'s Slot Machine 🎰</h3><div><img class="slot-image" src="${getSprite(slotOne)}" /><img class="slot-image" src="${getSprite(slotTwo)}" /><img class="slot-image" src="${getSprite(slotThree)}" /></div><p class="result-text">${result ? `🎉 You won ${winnings} Pokédollars! 🎉` : "😢 Better luck next time!"}</p></div>`; 
 }
 
 export const commands: ChatCommands = {
@@ -40,7 +40,7 @@ export const commands: ChatCommands = {
             if (isWin) await addMoney(user.id, winnings, "Slots winnings");
 
             // 📺 Broadcast slot results using our own `this.sendStyledBroadcast()`
-            this.sendStyledBroadcast(SlotDisplay({ user, slotOne, slotTwo, slotThree, result: isWin, winnings }));
-        },
+            this.sendStyledBroadcast(`|raw|` + SlotDisplay({ user, slotOne, slotTwo, slotThree, result: isWin, winnings }));
+		  }
     },
 };
