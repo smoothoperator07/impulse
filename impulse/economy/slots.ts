@@ -42,6 +42,7 @@ function buildSlotUI(user: User, resultSlots: string[], won: string | null, isTe
     if (isTest) content += `<br><strong style="color: #ffcc00;">[TEST MODE - No money was modified]</strong>`;
     content += `<br><button name="send" value="/slots ${isTest ? 'testspin' : 'spin'}" style="background: #4f4f4f; border: 1px solid #ffcc00; padding: 5px 10px; border-radius: 5px; font-weight: bold; color: white; cursor: pointer;">🔄 Roll Again</button>`;
     content += `</div>`;
+}
 
 export const commands: Chat.ChatCommands = {
     slots: {
