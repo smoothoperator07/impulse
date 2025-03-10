@@ -16,10 +16,8 @@ const slotsTrozei: Record<string, string> = {
     mewtwo: 'https://play.pokemonshowdown.com/sprites/ani/mewtwo.gif',
 };
 
-const availableSlots = Object.keys(slotsTrozei);
-
-// Get a random Pokémon slot
 function spin(): string {
+    const availableSlots = Object.keys(slotsTrozei); // Get available Pokémon names dynamically
     return availableSlots[Math.floor(Math.random() * availableSlots.length)];
 }
 
@@ -75,9 +73,11 @@ function displaySlotResult(user: User, finalSlots: string[], wonAmount?: number,
     content += `</center></div>`;
     return `|uhtml|slot-${user.id}|${content}`; // Unique UHTML key to update the result dynamically
 }
+*/
 
 export const commands: Chat.ChatCommands = {
     slots: {
+
 		 async spin(target, room, user) {
     if (!room || room.roomid !== SLOT_ROOM) {
         return this.errorReply(`Casino games can only be played in the "${SLOT_ROOM}" room.`);
@@ -91,17 +91,23 @@ export const commands: Chat.ChatCommands = {
         return this.errorReply(`You need at least ${SLOT_COST} Pokédollars to play. You are missing ${SLOT_COST - userBalance}.`);
     }
 
-    // Initial rolling message (no images yet)
-    this.sendReply(`|uhtml|slot-${user.id}|<div style="text-align: center;">
-        <h2>🎰 Pokémon Showdown Slot Machine 🎰</h2>
-        <p><strong>${user.name}</strong> pulls the lever...</p>
-        <p><strong>Rolling...</strong></p>
-    </div>`);
+    // Step 1: Rolling animation
+    let content = `<div style="padding: 10px; background: black; border: 3px solid gold; border-radius: 10px; text-align: center;">`;
+    content += `<h2 style="color: gold;">🎰 Pokémon Showdown Slot Machine 🎰</h2>`;
+    content += `<p><strong>${user.name}</strong> pulls the lever...</p>`;
+    content += `<p><strong>Rolling...</strong></p>`;
+    content += `<img src="https://play.pokemonshowdown.com/sprites/ani/rotom.gif" width="80"> `;
+    content += `<img src="https://play.pokemonshowdown.com/sprites/ani/rotom.gif" width="80"> `;
+    content += `<img src="https://play.pokemonshowdown.com/sprites/ani/rotom.gif" width="80">`;
+    content += `</div>`;
 
-    // Simulate a real slot machine by delaying the result
+    // Send rolling animation using `|uhtml|`
+    this.sendReply(`|uhtml|slot-${user.id}|${content}`);
+
+    // Step 2: Delay and show the final results
     setTimeout(async () => {
         const resultSlots = [spin(), spin(), spin()];
-        const winChance = 70 + availableSlots.indexOf(resultSlots[0]) * 3;
+        const winChance = 70 + Object.keys(slotsTrozei).indexOf(resultSlots[0]) * 3;
         const won = Math.random() * 100 >= winChance ? resultSlots[0] : null;
 
         if (won) {
@@ -110,8 +116,22 @@ export const commands: Chat.ChatCommands = {
             await takeMoney(user.id, SLOT_COST, 'Slot Machine Spin');
         }
 
-        // Update the rolling message with the final result
-        this.sendReplyBox(displaySlotResult(user, resultSlots, won ? 15 : 0));
+        let finalContent = `<div style="padding: 10px; background: black; border: 3px solid gold; border-radius: 10px; text-align: center;">`;
+        finalContent += `<h2 style="color: gold;">🎰 Pokémon Showdown Slot Machine 🎰</h2>`;
+        finalContent += `<p><strong>${user.name}</strong> spins the reels...</p>`;
+        finalContent += `<img src="${slotsTrozei[resultSlots[0]]}" width="80"> `;
+        finalContent += `<img src="${slotsTrozei[resultSlots[1]]}" width="80"> `;
+        finalContent += `<img src="${slotsTrozei[resultSlots[2]]}" width="80">`;
+        finalContent += `<br><br>`;
+        finalContent += won 
+            ? `<h2 style="color: green;">🎉 JACKPOT! You won <strong>15 Pokédollars!</strong></h2>` 
+            : `<h2 style="color: red;">😔 Oh no! You lost this round.</h2>`;
+        finalContent += `<br>`;
+        finalContent += `<button name="send" value="/slots spin" style="background: gold; border: 2px solid black; padding: 5px 10px; border-radius: 5px; font-weight: bold;">🔄 Roll Again</button>`;
+        finalContent += `</div>`;
+
+        // Update the existing rolling message using `|uhtmlchange|`
+        this.sendReply(`|uhtmlchange|slot-${user.id}|${finalContent}`);
     }, 3000); // 3-second delay for rolling effect
 		 },
 
