@@ -32,6 +32,7 @@
         "./data/random-battles/**/*",
         "./data/mods/*/*",
         "./dev-tools/*.ts",
+        "./impulse/**/*.ts",
         "./lib/*.ts",
         "./server/**/*.ts",
         "./server/**/*.tsx",
