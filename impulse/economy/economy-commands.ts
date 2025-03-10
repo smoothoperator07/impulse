@@ -115,8 +115,8 @@ export const commands: Chat.ChatCommands = {
 				 }
 			 } else {
 				 this.errorReply("Transfer failed. Please check your balance and try again.");
-			 },
-	 },
+			 }
+		 },
 		 
         async reset(target, room, user) {
             this.checkCan('ban'); // Permission required (@ +)
