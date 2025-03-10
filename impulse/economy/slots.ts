@@ -12,7 +12,7 @@ const slotSprites = {
     };
 
 function spin(): string {
-    const availableSlots = Object.keys(slotsTrozei); // Get available Pokémon names dynamically
+    const availableSlots = Object.keys(slotSprites); // Get available Pokémon names dynamically
     return availableSlots[Math.floor(Math.random() * availableSlots.length)];
 }
 
