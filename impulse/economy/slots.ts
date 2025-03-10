@@ -77,7 +77,6 @@ function displaySlotResult(user: User, finalSlots: string[], wonAmount?: number,
 
 export const commands: Chat.ChatCommands = {
     slots: {
-
 		 async spin(target, room, user) {
     if (!room || room.roomid !== SLOT_ROOM) {
         return this.errorReply(`Casino games can only be played in the "${SLOT_ROOM}" room.`);
@@ -91,48 +90,53 @@ export const commands: Chat.ChatCommands = {
         return this.errorReply(`You need at least ${SLOT_COST} Pokédollars to play. You are missing ${SLOT_COST - userBalance}.`);
     }
 
-    // Step 1: Rolling animation
-    let content = `<div style="padding: 10px; background: black; border: 3px solid gold; border-radius: 10px; text-align: center;">`;
+    // Generate slot results instantly
+    const resultSlots = [spin(), spin(), spin()];
+    const winChance = 70 + Object.keys(slotsTrozei).indexOf(resultSlots[0]) * 3;
+    const won = Math.random() * 100 >= winChance ? resultSlots[0] : null;
+
+    if (won) {
+        await addMoney(user.id, 15, 'Slot Machine Win');
+    } else {
+        await takeMoney(user.id, SLOT_COST, 'Slot Machine Spin');
+    }
+
+    // Pokémon Game Corner Slots Backgrounds for Light & Dark Themes
+    const lightBackground = "https://archives.bulbagarden.net/media/upload/8/8c/FRLG_Game_Corner.png"; 
+    const darkBackground = "https://archives.bulbagarden.net/media/upload/9/9b/Gen3_Game_Corner_Night.png";
+
+    // Inline theme-adaptive content using 'content' +
+    let content = `<div style="
+        position: relative;
+        width: 320px;
+        height: 240px;
+        background: url('${lightBackground}') no-repeat center center;
+        background-size: cover;
+        border: 3px solid gold;
+        border-radius: 10px;
+        text-align: center;"
+        class="light-mode"
+        onmouseover="this.style.backgroundImage='url(${darkBackground})'"
+        onmouseout="this.style.backgroundImage='url(${lightBackground})'"
+    >`;
+    
     content += `<h2 style="color: gold;">🎰 Pokémon Showdown Slot Machine 🎰</h2>`;
-    content += `<p><strong>${user.name}</strong> pulls the lever...</p>`;
-    content += `<p><strong>Rolling...</strong></p>`;
-    content += `<img src="https://play.pokemonshowdown.com/sprites/ani/rotom.gif" width="80"> `;
-    content += `<img src="https://play.pokemonshowdown.com/sprites/ani/rotom.gif" width="80"> `;
-    content += `<img src="https://play.pokemonshowdown.com/sprites/ani/rotom.gif" width="80">`;
+    content += `<p><strong>${user.name}</strong> spins the reels...</p>`;
+    content += `<div style="position: absolute; top: 70px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px;">`;
+    content += `<img src="${slotsTrozei[resultSlots[0]]}" width="50"> `;
+    content += `<img src="${slotsTrozei[resultSlots[1]]}" width="50"> `;
+    content += `<img src="${slotsTrozei[resultSlots[2]]}" width="50">`;
+    content += `</div>`;
+    content += `<br><br>`;
+    content += won 
+        ? `<h2 style="color: green;">🎉 JACKPOT! You won <strong>15 Pokédollars!</strong></h2>` 
+        : `<h2 style="color: red;">😔 Oh no! You lost this round.</h2>`;
+    content += `<br>`;
+    content += `<button name="send" value="/slots spin" style="background: gold; border: 2px solid black; padding: 5px 10px; border-radius: 5px; font-weight: bold;">🔄 Roll Again</button>`;
     content += `</div>`;
 
-    // Send rolling animation using `|uhtml|`
-    this.sendReply(`|uhtml|slot-${user.id}|${content}`);
-
-    // Step 2: Delay and show the final results
-    setTimeout(async () => {
-        const resultSlots = [spin(), spin(), spin()];
-        const winChance = 70 + Object.keys(slotsTrozei).indexOf(resultSlots[0]) * 3;
-        const won = Math.random() * 100 >= winChance ? resultSlots[0] : null;
-
-        if (won) {
-            await addMoney(user.id, 15, 'Slot Machine Win');
-        } else {
-            await takeMoney(user.id, SLOT_COST, 'Slot Machine Spin');
-        }
-
-        let finalContent = `<div style="padding: 10px; background: black; border: 3px solid gold; border-radius: 10px; text-align: center;">`;
-        finalContent += `<h2 style="color: gold;">🎰 Pokémon Showdown Slot Machine 🎰</h2>`;
-        finalContent += `<p><strong>${user.name}</strong> spins the reels...</p>`;
-        finalContent += `<img src="${slotsTrozei[resultSlots[0]]}" width="80"> `;
-        finalContent += `<img src="${slotsTrozei[resultSlots[1]]}" width="80"> `;
-        finalContent += `<img src="${slotsTrozei[resultSlots[2]]}" width="80">`;
-        finalContent += `<br><br>`;
-        finalContent += won 
-            ? `<h2 style="color: green;">🎉 JACKPOT! You won <strong>15 Pokédollars!</strong></h2>` 
-            : `<h2 style="color: red;">😔 Oh no! You lost this round.</h2>`;
-        finalContent += `<br>`;
-        finalContent += `<button name="send" value="/slots spin" style="background: gold; border: 2px solid black; padding: 5px 10px; border-radius: 5px; font-weight: bold;">🔄 Roll Again</button>`;
-        finalContent += `</div>`;
-
-        // Update the existing rolling message using `|uhtmlchange|`
-        this.sendReply(`|uhtmlchange|slot-${user.id}|${finalContent}`);
-    }, 3000); // 3-second delay for rolling effect
+    // Send final results using sendReplyBox()
+    this.sendReplyBox(content);
 		 },
 
         async testspin(target, room, user) {
