@@ -23,16 +23,17 @@ function buildSlotUI(user: User, resultSlots: string[], won: string | null, isTe
     content += `<h2 style="color: #ffcc00; text-transform: uppercase; text-align: center;">🎰 Pokémon Showdown Slot Machine 🎰</h2>`;
     content += `<p style="text-align: center;"><strong>${user.name}</strong> pulls the lever...</p>`;
 
-    content += `<div style="display: flex; justify-content: center; gap: 10px; align-items: center; padding: 10px;">`;
+    content += `<div style="display: flex; justify-content: center; gap: 10px; padding: 10px;">`;
     for (const slot of resultSlots) {
         content += `<div style="width: 70px; height: 70px; background: #ffcc00; border: 2px solid black; border-radius: 5px; display: flex; align-items: center; justify-content: center;">`;
-        content += `<img src="${slotSprites[slot]}" width="50"></div>`;
+        content += `<img src="${slotSprites[slot]}" width="50" style="display: block; margin: auto;">`;
+        content += `</div>`;
     }
     content += `</div>`;
 
     content += `<br>`;
     content += won 
-        ? `<h2 style="color: #66ff66; text-align: center;">🎉 JACKPOT! You won <strong>15 Pokédollars!</strong></h2>` 
+        ? `<h2 style="color: #66ff66; text-align: center;">🎉 JACKPOT! You won <strong>15 ${currencyName}!</strong></h2>` 
         : `<h2 style="color: #ff6666; text-align: center;">😔 Oh no! You lost this round.</h2>`;
 
     if (isTest) {
@@ -47,6 +48,7 @@ function buildSlotUI(user: User, resultSlots: string[], won: string | null, isTe
 
     return content;
 }
+
 
 export const commands: Chat.ChatCommands = {
     slots: {
