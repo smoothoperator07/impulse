@@ -18,35 +18,29 @@ function spin(): string {
 
 // Helper function to build the slot machine UI
 function buildSlotUI(user: User, resultSlots: string[], won: string | null, isTest: boolean): string {
-    const slotSprites = {
-        bulbasaur: 'https://play.pokemonshowdown.com/sprites/gen3/bulbasaur.png', squirtle: 'https://play.pokemonshowdown.com/sprites/gen3/squirtle.png',
-        charmander: 'https://play.pokemonshowdown.com/sprites/gen3/charmander.png', pikachu: 'https://play.pokemonshowdown.com/sprites/gen3/pikachu.png',
-        eevee: 'https://play.pokemonshowdown.com/sprites/gen3/eevee.png', snorlax: 'https://play.pokemonshowdown.com/sprites/gen3/snorlax.png',
-        dragonite: 'https://play.pokemonshowdown.com/sprites/gen3/dragonite.png', mew: 'https://play.pokemonshowdown.com/sprites/gen3/mew.png',
-        mewtwo: 'https://play.pokemonshowdown.com/sprites/gen3/mewtwo.png',
-    };
 
-    let content = `<div style="display: flex; justify-content: center; align-items: center; width: 100%;">`;
-    content += `<div style="background: #0d0d0d; color: #ffffff; border: 1px solid #4f4f4f; border-radius: 8px; padding: 10px; max-width: 400px; font-family: Verdana, sans-serif;">`;
-    content += `<h2 style="color: #ffcc00; text-transform: uppercase; text-align: center;">🎰 Pokémon Showdown Slot Machine 🎰</h2>`;
-    content += `<p style="text-align: center;"><strong>${user.name}</strong> pulls the lever...</p>`;
+    let content = `<div style="display: flex; justify-content: center; width: 100%;">`; // Center entire slot machine
+    content += `<div style="background: #0d0d0d; color: #ffffff; border: 1px solid #4f4f4f; border-radius: 8px; padding: 10px; max-width: 400px; text-align: center; font-family: Verdana, sans-serif;">`;
+    content += `<h2 style="color: #ffcc00; text-transform: uppercase;">🎰 Pokémon Showdown Slot Machine 🎰</h2>`;
+    content += `<p><strong>${user.name}</strong> pulls the lever...</p>`;
 
-    content += `<div style="display: flex; justify-content: center; gap: 10px; padding: 10px;">`;
+    // Center the sprite section
+    content += `<div style="display: flex; justify-content: center; align-items: center; gap: 15px; padding: 10px;">`;
     for (const slot of resultSlots) {
-        content += `<img src="${slotSprites[slot]}" width="50" style="border: 2px solid #ffcc00; border-radius: 5px;">`;
+        content += `<img src="${slotSprites[slot]}" width="50" style="border: 2px solid #ffcc00; border-radius: 5px; display: block;">`;
     }
     content += `</div>`;
 
     content += `<br>`;
     content += won 
-        ? `<h2 style="color: #66ff66; text-align: center;">🎉 JACKPOT! You won <strong>15 Pokédollars!</strong></h2>` 
-        : `<h2 style="color: #ff6666; text-align: center;">😔 Oh no! You lost this round.</h2>`;
+        ? `<h2 style="color: #66ff66;">🎉 JACKPOT! You won <strong>15 Pokédollars!</strong></h2>` 
+        : `<h2 style="color: #ff6666;">😔 Oh no! You lost this round.</h2>`;
 
     if (isTest) {
-        content += `<p style="color: #ffcc00; text-align: center;"><strong>[TEST MODE - No money was modified]</strong></p>`;
+        content += `<p style="color: #ffcc00;"><strong>[TEST MODE - No money was modified]</strong></p>`;
     }
 
-    content += `<div style="text-align: center; margin-top: 10px;">`;
+    content += `<div style="margin-top: 10px;">`;
     content += `<button name="send" value="/slots ${isTest ? 'testspin' : 'spin'}" style="background: #4f4f4f; border: 1px solid #ffcc00; padding: 5px 10px; border-radius: 5px; font-weight: bold; color: white; cursor: pointer;">🔄 Roll Again</button>`;
     content += `</div>`;
 
@@ -54,7 +48,6 @@ function buildSlotUI(user: User, resultSlots: string[], won: string | null, isTe
 
     return content;
 }
-
 
 export const commands: Chat.ChatCommands = {
     slots: {
