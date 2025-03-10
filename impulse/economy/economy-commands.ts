@@ -16,7 +16,7 @@ global.currencyName = 'Pokèdollars';
 
 export const commands: Chat.ChatCommands = {
     async balance(target, room, user) {
-		 this.runBroadcast();
+		 if (!this.runBroadcast()) return;
 		 this.requireRoom();
 		 const targetUser = toID(target) || toID(user.name);
 		 const balance = await getBalance(targetUser);
