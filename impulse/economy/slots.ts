@@ -30,6 +30,8 @@ function buildSlotUI(user: User, resultSlots: string[], won: string | null, isTe
     if (isTest) content += `<br><strong style="color: #ffcc00;">[TEST MODE - No money was modified]</strong>`;
     content += `<br><button name="send" value="/slots ${isTest ? 'testspin' : 'spin'}" style="background: #4f4f4f; border: 1px solid #ffcc00; padding: 5px 10px; border-radius: 5px; font-weight: bold; color: white; cursor: pointer;">🔄 Roll Again</button>`;
     content += `</div>`;
+
+	return content;
 }
 
 export const commands: Chat.ChatCommands = {
@@ -57,7 +59,7 @@ export const commands: Chat.ChatCommands = {
                 await takeMoney(user.id, SLOT_COST, 'Slot Machine Spin');
             }
 
-            return this.sendReplyBox(buildSlotUI(user, resultSlots, won, false)); // Fixed
+			 this.sendReplyBox(buildSlotUI(user, resultSlots, won, false)); // Now always executes
         },
 
 		 async testspin(target, room, user) {
@@ -71,7 +73,7 @@ export const commands: Chat.ChatCommands = {
             const resultSlots = [spin(), spin(), spin()];
             const won = Math.random() * 100 >= 70 ? resultSlots[0] : null;
 
-            return this.sendReplyBox(buildSlotUI(user, resultSlots, won, true)); //  Fixed
+			 this.sendReplyBox(buildSlotUI(user, resultSlots, won, true)); // Now always executes
         },
 
         help(target, room, user) {
