@@ -19,19 +19,24 @@ function spin(): string {
 // Helper function to build the slot machine UI
 function buildSlotUI(user: User, resultSlots: string[], won: string | null, isTest: boolean): string {
 
-    let content = `<div style="background: #0d0d0d; color: #fff; border: 1px solid #4f4f4f; border-radius: 8px; padding: 10px; text-align: center; max-width: 100%; font-family: Verdana, sans-serif;">`;
+	let content = `<div style="background: #0d0d0d; color: #fff; border: 1px solid #4f4f4f; border-radius: 8px; padding: 10px; text-align: center; max-width: 100%; font-family: Verdana, sans-serif;">`;
     content += `<h2 style="color: #ffcc00; text-transform: uppercase;">🎰 Pokémon Showdown Slot Machine 🎰</h2>`;
-    content += `<p><strong>${user.name}</strong> spins the reels...</p>`;
-    content += `<div style="display: flex; justify-content: center; gap: 10px;">`;
-    content += `<img src="${slotSprites[resultSlots[0]]}" width="50"> <img src="${slotSprites[resultSlots[1]]}" width="50"> <img src="${slotSprites[resultSlots[2]]}" width="50">`;
+    content += `<p><strong>${user.name}</strong> pulls the lever...</p>`;
+    content += `<div style="display: flex; justify-content: center; gap: 15px; align-items: center;">`;
+    content += `<div style="width: 70px; height: 70px; background: #ffcc00; border: 2px solid black; border-radius: 5px; display: flex; align-items: center; justify-content: center;">`;
+    content += `<img src="${slotSprites[resultSlots[0]]}" width="50"></div>`;
+    content += `<div style="width: 70px; height: 70px; background: #ffcc00; border: 2px solid black; border-radius: 5px; display: flex; align-items: center; justify-content: center;">`;
+    content += `<img src="${slotSprites[resultSlots[1]]}" width="50"></div>`;
+    content += `<div style="width: 70px; height: 70px; background: #ffcc00; border: 2px solid black; border-radius: 5px; display: flex; align-items: center; justify-content: center;">`;
+    content += `<img src="${slotSprites[resultSlots[2]]}" width="50"></div>`;
     content += `</div><br>`;
-    content += won ? `<h2 style="color: #66ff66;">🎉 JACKPOT! You won <strong>15 ${currencyName}!</strong></h2>` 
+    content += won ? `<h2 style="color: #66ff66;">🎉 JACKPOT! You won <strong>15 Pokédollars!</strong></h2>` 
                    : `<h2 style="color: #ff6666;">😔 Oh no! You lost this round.</h2>`;
     if (isTest) content += `<br><strong style="color: #ffcc00;">[TEST MODE - No money was modified]</strong>`;
     content += `<br><button name="send" value="/slots ${isTest ? 'testspin' : 'spin'}" style="background: #4f4f4f; border: 1px solid #ffcc00; padding: 5px 10px; border-radius: 5px; font-weight: bold; color: white; cursor: pointer;">🔄 Roll Again</button>`;
     content += `</div>`;
 
-	return content;
+    return content;
 }
 
 export const commands: Chat.ChatCommands = {
