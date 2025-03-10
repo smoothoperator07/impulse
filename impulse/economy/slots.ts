@@ -69,7 +69,7 @@ export const commands: Chat.ChatCommands = {
                 await takeMoney(user.id, SLOT_COST, 'Slot Machine Spin');
             }
 
-            return this.sendReplyBox(`|uhtml|slot-${user.id}|${buildSlotUI(user, resultSlots, won, false)}`); // Always return this.sendReplyBox()
+            return this.sendReply(`|uhtml|slot-${user.id}|${buildSlotUI(user, resultSlots, won, false)}`); // Always return this.sendReplyBox()
         },
 
         async testspin(target, room, user) {
@@ -83,7 +83,7 @@ export const commands: Chat.ChatCommands = {
             const resultSlots = [spin(), spin(), spin()];
             const won = Math.random() * 100 >= 70 ? resultSlots[0] : null;
 
-            return this.sendReplyBox(`|uhtml|slot-${user.id}-test|${buildSlotUI(user, resultSlots, won, true)}`); // ✅ Always return this.sendReply()
+            return this.sendReply(`|uhtml|slot-${user.id}-test|${buildSlotUI(user, resultSlots, won, true)}`); // ✅ Always return this.sendReply()
         },
 
         help(target, room, user) {
