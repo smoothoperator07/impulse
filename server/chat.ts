@@ -866,6 +866,11 @@ export class CommandContext extends MessageContext {
 			this.send(data);
 		}
 	}
+	// Custom SendReplyBox
+	sendStyledBroadcast(content: string) {
+    this.room.add(`|raw|${content}`).update(); // Broadcasts styled HTML safely
+};
+
 	send(data: string) {
 		if (this.room) {
 			this.room.send(data);
