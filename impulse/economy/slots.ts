@@ -25,7 +25,7 @@ function buildSlotUI(user: User, resultSlots: string[], won: string | null, isTe
     content += `<div style="display: flex; justify-content: center; gap: 10px;">`;
     content += `<img src="${slotSprites[resultSlots[0]]}" width="50"> <img src="${slotSprites[resultSlots[1]]}" width="50"> <img src="${slotSprites[resultSlots[2]]}" width="50">`;
     content += `</div><br>`;
-    content += won ? `<h2 style="color: #66ff66;">🎉 JACKPOT! You won <strong>15 Pokédollars!</strong></h2>` 
+    content += won ? `<h2 style="color: #66ff66;">🎉 JACKPOT! You won <strong>15 ${currencyName}!</strong></h2>` 
                    : `<h2 style="color: #ff6666;">😔 Oh no! You lost this round.</h2>`;
     if (isTest) content += `<br><strong style="color: #ffcc00;">[TEST MODE - No money was modified]</strong>`;
     content += `<br><button name="send" value="/slots ${isTest ? 'testspin' : 'spin'}" style="background: #4f4f4f; border: 1px solid #ffcc00; padding: 5px 10px; border-radius: 5px; font-weight: bold; color: white; cursor: pointer;">🔄 Roll Again</button>`;
@@ -44,11 +44,11 @@ export const commands: Chat.ChatCommands = {
 
             const userBalance = await getBalance(user.id);
             if (userBalance < SLOT_COST) {
-                return this.errorReply(`You need at least ${SLOT_COST} Pokédollars to play. You are missing ${SLOT_COST - userBalance}.`);
+                return this.errorReply(`You need at least ${SLOT_COST} ${currencyName} to play. You are missing ${SLOT_COST - userBalance}.`);
             }
 
             const resultSlots = [spin(), spin(), spin()];
-            const winChance = 70 + Object.keys(slotsTrozei).indexOf(resultSlots[0]) * 3;
+            const winChance = 70 + Object.keys(slotSprites).indexOf(resultSlots[0]) * 3;
             const won = Math.random() * 100 >= winChance ? resultSlots[0] : null;
 
             if (won) {
@@ -57,7 +57,7 @@ export const commands: Chat.ChatCommands = {
                 await takeMoney(user.id, SLOT_COST, 'Slot Machine Spin');
             }
 
-            return this.sendReplyBox(buildSlotUI(user, resultSlots, won, false)); // ✅ Fixed
+            return this.sendReplyBox(buildSlotUI(user, resultSlots, won, false)); // Fixed
         },
 
 		 async testspin(target, room, user) {
@@ -71,7 +71,7 @@ export const commands: Chat.ChatCommands = {
             const resultSlots = [spin(), spin(), spin()];
             const won = Math.random() * 100 >= 70 ? resultSlots[0] : null;
 
-            return this.sendReplyBox(buildSlotUI(user, resultSlots, won, true)); // ✅ Fixed
+            return this.sendReplyBox(buildSlotUI(user, resultSlots, won, true)); //  Fixed
         },
 
         help(target, room, user) {
@@ -81,11 +81,11 @@ export const commands: Chat.ChatCommands = {
             content += `<h2 style="color: #ffcc00; text-transform: uppercase; text-align: center;">🎰 Pokémon Showdown Slots 🎰</h2>`;
             content += `<p style="text-align: center;">Try your luck with the slot machine and win Pokédollars!</p>`;
             content += `<strong>How to Play:</strong><ul>`;
-            content += `<li><strong>/slots spin</strong> - Play the game (Costs ${SLOT_COST} Pokédollars per spin)</li>`;
+            content += `<li><strong>/slots spin</strong> - Play the game (Costs ${SLOT_COST} ${currencyName} per spin)</li>`;
             content += `<li><strong>/slots testspin</strong> - Test mode (No balance required, Admins Only)</li>`;
             content += `</ul><strong>Winning Pokémon:</strong><ul>`;
             
-            for (const [pokemon, _] of Object.entries(slotsTrozei)) {
+            for (const [pokemon, _] of Object.entries(slotSprites)) {
                 content += `<li>${pokemon.charAt(0).toUpperCase() + pokemon.slice(1)}</li>`;
             }
 
