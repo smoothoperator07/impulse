@@ -10,22 +10,14 @@ const slots = {
 // 🎨 Gen 3 Pokémon Sprites
 const getSprite = (pokemon: string) => `https://play.pokemonshowdown.com/sprites/ani/${pokemon}.gif`;
 
-// 🎰 Spins the slot machine
-function spin() {
-    const availableSlots = Object.keys(slots);
-    return availableSlots[Math.floor(Math.random() * availableSlots.length)];
-}
-
-// 🎮 Display JSX Component
+// 🎮 JSX Slot Display Component
 function SlotDisplay({ user, slotOne, slotTwo, slotThree, result, winnings }) {
     return <JSX.Fragment>
-        <style>
-            {`
+        <style dangerouslySetInnerHTML={{ __html: `
             .slot-container { background: black; padding: 10px; border-radius: 8px; text-align: center; }
             .slot-image { padding: 5px; border: 2px solid gold; border-radius: 5px; width: 64px; height: 64px; }
             .result-text { color: white; font-weight: bold; }
-            `}
-        </style>
+        ` }} />
         <div class="slot-container">
             <h3 style="color: gold;">🎰 {user.name}'s Slot Machine 🎰</h3>
             <div>
@@ -64,4 +56,3 @@ export const commands: ChatCommands = {
         },
     },
 };
-          
