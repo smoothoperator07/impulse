@@ -66,7 +66,7 @@ export const commands: Chat.ChatCommands = {
                 await takeMoney(user.id, SLOT_COST, 'Slot Machine Spin');
             }
 
-			 this.sendReply(buildSlotUI(user, resultSlots, won, false)); // Now always executes
+			 this.sendReplyBox(buildSlotUI(user, resultSlots, won, false)); // Now always executes
         },
 
 		 async testspin(target, room, user) {
