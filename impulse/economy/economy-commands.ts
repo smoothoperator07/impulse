@@ -52,38 +52,64 @@ export const commands: Chat.ChatCommands = {
     eco: {
         async give(target, room, user) {
             this.checkCan('ban'); // Permission required (@ +)
-            const [targetUser, amount, reason] = target.split(',').map(t => t.trim());
-            if (!targetUser || isNaN(Number(amount)) || !reason) return this.errorReply("Usage: /eco give [user], [amount], [reason]");
+            const [targetUser, amountStr, reason] = target.split(',').map(t => t.trim());
 
-            await addMoney(toID(targetUser), Number(amount), reason);
+            if (!targetUser || !amountStr || isNaN(Number(amountStr)) || Number(amountStr) <= 0 || !reason) {
+                return this.errorReply("Usage: /eco give [user], [positive amount], [reason]");
+            }
+
+            const amount = Math.floor(Number(amountStr));
+            await addMoney(toID(targetUser), amount, reason);
+            
             this.sendReply(`${targetUser} has been given ${amount} ${currencyName}. Reason: ${reason}`);
+
+            // Private notification to target user
+            let targetU = Users.get(targetUser);
+            if (targetU) targetU.send(`|pm|~|${targetUser}|You have received ${amount} ${currencyName}. Reason: ${reason}`);
         },
 
         async take(target, room, user) {
             this.checkCan('ban'); // Permission required (@ +)
-            const [targetUser, amount, reason] = target.split(',').map(t => t.trim());
-            if (!targetUser || isNaN(Number(amount)) || !reason) return this.errorReply("Usage: /eco take [user], [amount], [reason]");
+            const [targetUser, amountStr, reason] = target.split(',').map(t => t.trim());
 
-            const success = await takeMoney(toID(targetUser), Number(amount), reason);
+            if (!targetUser || !amountStr || isNaN(Number(amountStr)) || Number(amountStr) <= 0 || !reason) {
+                return this.errorReply("Usage: /eco take [user], [positive amount], [reason]");
+            }
+
+            const amount = Math.floor(Number(amountStr));
+            const success = await takeMoney(toID(targetUser), amount, reason);
+
             if (success) {
-                this.sendReply(`${amount} ${currencyName} have been taken from ${targetUser}. Reason: ${reason}`);
+                this.sendReply(`${amount} ${currencyName} has been taken from ${targetUser}. Reason: ${reason}`);
+
+                // Private notification to target user
+                let targetU = Users.get(targetUser);
+                if (targetU) targetU.send(`|pm|~|${targetUser}|${amount} ${currencyName} has been taken from you. Reason: ${reason}`);
             } else {
                 this.errorReply(`${targetUser} does not have enough ${currencyName}.`);
             }
         },
 
         async transfer(target, room, user) {
-            const [targetUser, amount, reason] = target.split(',').map(t => t.trim());
-            if (!targetUser || isNaN(Number(amount)) || !reason) return this.errorReply("Usage: /eco transfer [user], [amount], [reason]");
+            const [targetUser, amountStr, reason] = target.split(',').map(t => t.trim());
 
-            const success = await transferMoney(toID(user.name), toID(targetUser), Number(amount), reason);
+            if (!targetUser || !amountStr || isNaN(Number(amountStr)) || Number(amountStr) <= 0 || !reason) {
+                return this.errorReply("Usage: /eco transfer [user], [positive amount], [reason]");
+            }
+
+            const amount = Math.floor(Number(amountStr));
+            const success = await transferMoney(toID(user.name), toID(targetUser), amount, reason);
+
             if (success) {
                 this.sendReply(`Successfully transferred ${amount} ${currencyName} to ${targetUser}. Reason: ${reason}`);
+
+                // Private notification to recipient
+                let targetU = Users.get(targetUser);
+                if (targetU) targetU.send(`|pm|~|${targetUser}|You have received ${amount} ${currencyName} from ${user.name}. Reason: ${reason}`);
             } else {
                 this.errorReply("Transfer failed. Check your balance.");
             }
         },
-
         async reset(target, room, user) {
             this.checkCan('ban'); // Permission required (@ +)
             const targetUser = toID(target);
@@ -98,6 +124,28 @@ export const commands: Chat.ChatCommands = {
             await resetAllBalances();
             this.sendReply(`All users' balances have been reset to 0.`);
         },
+
+		 async help(target, room, user) {
+        this.checkCan('broadcast'); // Allow + and higher to broadcast
+
+        let content = '<div class="infobox" style="border: 2px solid #FFD700; background: linear-gradient(45deg, #111, #222);';
+        content += ' color: #FFD700; padding: 8px; border-radius: 8px;">';
+        content += '<center>';
+        content += '<h2 style="color: #FFEA00; text-shadow: 0 0 8px #FFD700;">⚡ Pokémon Showdown Economy ⚡</h2>';
+        content += '<p><em>Manage your PokéDollars and transactions!</em></p>';
+        content += '</center>';
+        content += '<strong style="color: #FFDD44;">Commands:</strong><br>';
+        content += '<strong>/eco balance [user]</strong> - Check your or another user\'s balance.<br>';
+        content += '<strong>/eco give [user], [amount], [reason]</strong> - Give money to a user. <span style="color: #FFAA00;">(Requires @ or higher)</span><br>';
+        content += '<strong>/eco take [user], [amount], [reason]</strong> - Take money from a user. <span style="color: #FFAA00;">(Requires @ or higher)</span><br>';
+        content += '<strong>/eco transfer [user], [amount], [reason]</strong> - Transfer money to another user.<br>';
+        content += '<strong>/eco reset [user]</strong> - Reset a user\'s balance. <span style="color: #FFAA00;">(Requires @ or higher)</span><br>';
+        content += '<strong>/eco resetall</strong> - Reset all balances. <span style="color: #FF5500;">(Requires Admin)</span><br>';
+        content += '<strong>/eco transactionlog [user or page number]</strong> - View transaction logs. <span style="color: #FFAA00;">(Requires @ or higher)</span>';
+        content += '</div>';
+
+        this.sendReplyBox(content);
+    },
 	 },
 
     economy: 'eco', // Alias for /eco
