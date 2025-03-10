@@ -37,7 +37,7 @@ function buildSlotUI(user: User, resultSlots: string[], won: string | null, isTe
     content += `<div style="display: flex; justify-content: center; gap: 10px;">`;
     content += `<img src="${slotSprites[resultSlots[0]]}" width="50"> <img src="${slotSprites[resultSlots[1]]}" width="50"> <img src="${slotSprites[resultSlots[2]]}" width="50">`;
     content += `</div><br>`;
-    content += won ? `<h2 style="color: #66ff66;">🎉 JACKPOT! You won <strong>15 Pokédollars!</strong></h2>` 
+    content += won ? `<h2 style="color: #66ff66;">🎉 JACKPOT! You won <strong>15 ${currencyName}!</strong></h2>` 
                    : `<h2 style="color: #ff6666;">😔 Oh no! You lost this round.</h2>`;
     if (isTest) content += `<br><strong style="color: #ffcc00;">[TEST MODE - No money was modified]</strong>`;
     content += `<br><button name="send" value="/slots ${isTest ? 'testspin' : 'spin'}" style="background: #4f4f4f; border: 1px solid #ffcc00; padding: 5px 10px; border-radius: 5px; font-weight: bold; color: white; cursor: pointer;">🔄 Roll Again</button>`;
@@ -56,7 +56,7 @@ export const commands: Chat.ChatCommands = {
 
             const userBalance = await getBalance(user.id);
             if (userBalance < SLOT_COST) {
-                return this.errorReply(`You need at least ${SLOT_COST} Pokédollars to play. You are missing ${SLOT_COST - userBalance}.`);
+                return this.errorReply(`You need at least ${SLOT_COST} ${currencyName} to play. You are missing ${SLOT_COST - userBalance}.`);
             }
 
             const resultSlots = [spin(), spin(), spin()];
@@ -69,7 +69,7 @@ export const commands: Chat.ChatCommands = {
                 await takeMoney(user.id, SLOT_COST, 'Slot Machine Spin');
             }
 
-            return this.sendReply(`|uhtml|slot-${user.id}|${buildSlotUI(user, resultSlots, won, false)}`);
+            return this.sendReplyBox(`|uhtml|slot-${user.id}|${buildSlotUI(user, resultSlots, won, false)}`); // Always return this.sendReplyBox()
         },
 
         async testspin(target, room, user) {
@@ -83,7 +83,7 @@ export const commands: Chat.ChatCommands = {
             const resultSlots = [spin(), spin(), spin()];
             const won = Math.random() * 100 >= 70 ? resultSlots[0] : null;
 
-            return this.sendReply(`|uhtml|slot-${user.id}-test|${buildSlotUI(user, resultSlots, won, true)}`);
+            return this.sendReplyBox(`|uhtml|slot-${user.id}-test|${buildSlotUI(user, resultSlots, won, true)}`); // ✅ Always return this.sendReply()
         },
 
         help(target, room, user) {
