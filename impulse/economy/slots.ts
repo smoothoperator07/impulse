@@ -11,15 +11,15 @@ const slots: Record<string, number> = {
 
 // Pokémon Trozei sprites
 const slotsTrozei: Record<string, string> = {
-    bulbasaur: 'http://www.pokestadium.com/assets/img/sprites/misc/trozei/bulbasaur.gif',
-    squirtle: 'http://www.pokestadium.com/assets/img/sprites/misc/trozei/squirtle.gif',
-    charmander: 'http://www.pokestadium.com/assets/img/sprites/misc/trozei/charmander.gif',
-    pikachu: 'http://www.pokestadium.com/assets/img/sprites/misc/trozei/pikachu.gif',
-    eevee: 'http://www.pokestadium.com/assets/img/sprites/misc/trozei/eevee.gif',
-    snorlax: 'http://www.pokestadium.com/assets/img/sprites/misc/trozei/snorlax.gif',
-    dragonite: 'http://www.pokestadium.com/assets/img/sprites/misc/trozei/dragonite.gif',
-    mew: 'http://www.pokestadium.com/assets/img/sprites/misc/trozei/mew.gif',
-    mewtwo: 'http://www.pokestadium.com/assets/img/sprites/misc/trozei/mewtwo.gif',
+    bulbasaur: 'https://play.pokemonshowdown.com/sprites/gen5/bulbasaur.png',
+    squirtle: 'https://play.pokemonshowdown.com/sprites/gen5/squirtle.png',
+    charmander: 'https://play.pokemonshowdown.com/sprites/gen5/charmander.png',
+    pikachu: 'https://play.pokemonshowdown.com/sprites/gen5/pikachu.png',
+    eevee: 'https://play.pokemonshowdown.com/sprites/gen5/eevee.png',
+    snorlax: 'https://play.pokemonshowdown.com/sprites/gen5/snorlax.png',
+    dragonite: 'https://play.pokemonshowdown.com/sprites/gen5/dragonite.png',
+    mew: 'https://play.pokemonshowdown.com/sprites/gen5/mew.png',
+    mewtwo: 'https://play.pokemonshowdown.com/sprites/gen5/mewtwo.png',
 };
 
 const availableSlots = Object.keys(slots);
