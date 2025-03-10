@@ -126,7 +126,7 @@ export const commands: Chat.ChatCommands = {
         },
 			
 			async help(target, room, user) {
-				this.checkBroadcast(); // Allow + and higher to broadcast
+				this.runBroadcast(); // Allow + and higher to broadcast
 				let content = '<div class="infobox" style="border: 2px solid #FFD700; background: #111;';
 				content += ' color: #FFD700; padding: 8px; border-radius: 8px;">';
 				content += '<center>';
