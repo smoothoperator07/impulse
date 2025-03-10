@@ -40,7 +40,7 @@ export const commands: ChatCommands = {
             if (isWin) await addMoney(user.id, winnings, "Slots winnings");
 
             // 📺 Broadcast slot results using our own `this.sendStyledBroadcast()`
-            this.sendStyledBroadcast(|raw|SlotDisplay({ user, slotOne, slotTwo, slotThree, result: isWin, winnings }));
+            this.sendStyledBroadcast(SlotDisplay({ user, slotOne, slotTwo, slotThree, result: isWin, winnings }));
         },
     },
 };
