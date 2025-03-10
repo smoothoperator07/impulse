@@ -124,19 +124,18 @@ export const commands: Chat.ChatCommands = {
             await resetAllBalances();
             this.sendReply(`All users' balances have been reset to 0.`);
         },
+
 		 async help(target, room, user) {
-			 this.runBroadcast(); // Allow + and higher to broadcast
+    this.runBroadcast(); // Allow + and higher to broadcast
 
     let content = '<div class="infobox" style="border: 2px solid #FFD700; background: #111;';
     content += ' color: #FFD700; padding: 8px; border-radius: 8px;">';
     content += '<center>';
-    content += '<style>@keyframes thunder { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }</style>';
-    content += '<p style="font-size: 20px; color: #FFEA00; animation: thunder 0.5s infinite alternate;">⚡⚡⚡⚡⚡</p>';
     content += '<h2 style="color: #FFEA00; background: none; margin: 0; padding: 0;">⚡ Pokémon Showdown Economy ⚡</h2>';
-    content += '<p style="font-size: 20px; color: #FFEA00; animation: thunder 0.5s infinite alternate;">⚡⚡⚡⚡⚡</p>';
     content += '<p><em>Manage your ' + currencyName + ' and transactions!</em></p>';
     content += '</center>';
     content += '<strong style="color: #FFDD44;">Commands:</strong><br>';
+    content += '<strong>/eco help</strong> - Show this help menu.<br>';
     content += '<strong>/eco balance [user]</strong> - Check your or another user\'s balance.<br>';
     content += '<strong>/eco give [user], [amount], [reason]</strong> - Give money to a user. <span style="color: #FFAA00;">(Requires @ or higher)</span><br>';
     content += '<strong>/eco take [user], [amount], [reason]</strong> - Take money from a user. <span style="color: #FFAA00;">(Requires @ or higher)</span><br>';
