@@ -57,7 +57,7 @@ export const commands: Chat.ChatCommands = {
             }
 
             const resultSlots = [spin(), spin(), spin()];
-            const winChance = 2000 + Object.keys(slotSprites).indexOf(resultSlots[0]) * 3;
+            const winChance = 10 + Object.keys(slotSprites).indexOf(resultSlots[0]) * 3;
             const won = Math.random() * 100 >= winChance ? resultSlots[0] : null;
 
             if (won) {
