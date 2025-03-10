@@ -1,5 +1,4 @@
 import { getBalance, addMoney, takeMoney } from '../../impulse/economy/economy';
-import * as JSX from '../chat-jsx';
 
 // 🎰 Slot Machine Symbols & Payouts
 const slots = {
@@ -10,27 +9,21 @@ const slots = {
 // 🎨 Gen 3 Pokémon Sprites
 const getSprite = (pokemon: string) => `https://play.pokemonshowdown.com/sprites/ani/${pokemon}.gif`;
 
-// 🎮 JSX Slot Display Component
+// 🎰 Spins the slot machine
+function spin() {
+    const availableSlots = Object.keys(slots);
+    return availableSlots[Math.floor(Math.random() * availableSlots.length)];
+}
+
+// 🎮 Slot Machine Display Component
 function SlotDisplay({ user, slotOne, slotTwo, slotThree, result, winnings }) {
-    return <JSX.Fragment>
-        <div class="slot-container" style="background:black;padding:10px;border-radius:8px;text-align:center;">
-            <h3 style="color: gold;">🎰 {user.name}'s Slot Machine 🎰</h3>
-            <div>
-                <img class="slot-image" style="padding:5px;border:2px solid gold;border-radius:5px;width:64px;height:64px;" src={getSprite(slotOne)} />
-                <img class="slot-image" style="padding:5px;border:2px solid gold;border-radius:5px;width:64px;height:64px;" src={getSprite(slotTwo)} />
-                <img class="slot-image" style="padding:5px;border:2px solid gold;border-radius:5px;width:64px;height:64px;" src={getSprite(slotThree)} />
-            </div>
-            <p class="result-text" style="color:white;font-weight:bold;">
-                {result ? `🎉 You won ${winnings} Pokédollars! 🎉` : "😢 Better luck next time!"}
-            </p>
-        </div>
-    </JSX.Fragment>;
+    return `<div style="background:black;padding:10px;border-radius:8px;text-align:center;"><h3 style="color:gold;">🎰 ${user.name}'s Slot Machine 🎰</h3><div><img style="padding:5px;border:2px solid gold;border-radius:5px;width:64px;height:64px;" src="${getSprite(slotOne)}" /><img style="padding:5px;border:2px solid gold;border-radius:5px;width:64px;height:64px;" src="${getSprite(slotTwo)}" /><img style="padding:5px;border:2px solid gold;border-radius:5px;width:64px;height:64px;" src="${getSprite(slotThree)}" /></div><p style="color:white;font-weight:bold;">${result ? `🎉 You won ${winnings} Pokédollars! 🎉` : "😢 Better luck next time!"}</p></div>`;
 }
 
 export const commands: ChatCommands = {
     slots: {
         async spin(target, room, user) {
-            if (!room || !this.runBroadcast()) return false;
+            if (!room || !this.runBroadcast()) return false; // ✅ Allow all users to broadcast
             
             // 💰 Check user's balance
             const balance = await getBalance(user.id);
@@ -46,8 +39,8 @@ export const commands: ChatCommands = {
             await takeMoney(user.id, betAmount, "Slots bet");
             if (isWin) await addMoney(user.id, winnings, "Slots winnings");
 
-            // 📺 Display result
-            return this.sendReplyBox(<SlotDisplay user={user} slotOne={slotOne} slotTwo={slotTwo} slotThree={slotThree} result={isWin} winnings={winnings} />);
+            // 📺 Broadcast slot results using our own `this.sendStyledBroadcast()`
+            this.sendStyledBroadcast(SlotDisplay({ user, slotOne, slotTwo, slotThree, result: isWin, winnings }));
         },
     },
 };
