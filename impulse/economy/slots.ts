@@ -107,19 +107,9 @@ export const commands: Chat.ChatCommands = {
     const darkBackground = "https://archives.bulbagarden.net/media/upload/9/9b/Gen3_Game_Corner_Night.png";
 
     // Inline theme-adaptive content using 'content' +
-    let content = `<div style="
-        position: relative;
-        width: 320px;
-        height: 240px;
-        background: url('${lightBackground}') no-repeat center center;
-        background-size: cover;
-        border: 3px solid gold;
-        border-radius: 10px;
-        text-align: center;"
-        class="light-mode"
-        onmouseover="this.style.backgroundImage='url(${darkBackground})'"
-        onmouseout="this.style.backgroundImage='url(${lightBackground})'"
-    >`;
+    let content = `<div style="position: relative;width: 320px; height: 240px;` +
+        `background: url('${lightBackground}') no-repeat center center; background-size: cover;` +
+        `border: 3px solid gold; border-radius: 10px; text-align: center;"class="light-mode"onmouseover="this.style.backgroundImage='url(${darkBackground})'"onmouseout="this.style.backgroundImage='url(${lightBackground})'">`;
     
     content += `<h2 style="color: gold;">🎰 Pokémon Showdown Slot Machine 🎰</h2>`;
     content += `<p><strong>${user.name}</strong> spins the reels...</p>`;
