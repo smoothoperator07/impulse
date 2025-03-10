@@ -4,11 +4,11 @@ const SLOT_COST = 3;
 const SLOT_ROOM = 'casino';
 
 const slotSprites = {
-        bulbasaur: 'https://play.pokemonshowdown.com/sprites/ani/bulbasaur.gif', squirtle: 'https://play.pokemonshowdown.com/sprites/ani/squirtle.gif',
-        charmander: 'https://play.pokemonshowdown.com/sprites/ani/charmander.gif', pikachu: 'https://play.pokemonshowdown.com/sprites/ani/pikachu.gif',
-        eevee: 'https://play.pokemonshowdown.com/sprites/ani/eevee.gif', snorlax: 'https://play.pokemonshowdown.com/sprites/ani/snorlax.gif',
-        dragonite: 'https://play.pokemonshowdown.com/sprites/ani/dragonite.gif', mew: 'https://play.pokemonshowdown.com/sprites/ani/mew.gif',
-        mewtwo: 'https://play.pokemonshowdown.com/sprites/ani/mewtwo.gif',
+        bulbasaur: 'https://play.pokemonshowdown.com/sprites/gen3/bulbasaur.png', squirtle: 'https://play.pokemonshowdown.com/sprites/gen3/squirtle.png',
+        charmander: 'https://play.pokemonshowdown.com/sprites/gen3/charmander.png', pikachu: 'https://play.pokemonshowdown.com/sprites/gen3/pikachu.png',
+        eevee: 'https://play.pokemonshowdown.com/sprites/gen3/eevee.png', snorlax: 'https://play.pokemonshowdown.com/sprites/gen3/snorlax.png',
+        dragonite: 'https://play.pokemonshowdown.com/sprites/gen3/dragonite.png', mew: 'https://play.pokemonshowdown.com/sprites/gen3/mew.png',
+        mewtwo: 'https://play.pokemonshowdown.com/sprites/gen3/mewtwo.png',
     };
 
 function spin(): string {
@@ -22,13 +22,10 @@ function buildSlotUI(user: User, resultSlots: string[], won: string | null, isTe
 	let content = `<div style="background: #0d0d0d; color: #fff; border: 1px solid #4f4f4f; border-radius: 8px; padding: 10px; text-align: center; max-width: 100%; font-family: Verdana, sans-serif;">`;
     content += `<h2 style="color: #ffcc00; text-transform: uppercase;">🎰 Pokémon Showdown Slot Machine 🎰</h2>`;
     content += `<p><strong>${user.name}</strong> pulls the lever...</p>`;
-    content += `<div style="display: flex; justify-content: center; gap: 15px; align-items: center;">`;
-    content += `<div style="width: 70px; height: 70px; background: #ffcc00; border: 2px solid black; border-radius: 5px; display: flex; align-items: center; justify-content: center;">`;
-    content += `<img src="${slotSprites[resultSlots[0]]}" width="50"></div>`;
-    content += `<div style="width: 70px; height: 70px; background: #ffcc00; border: 2px solid black; border-radius: 5px; display: flex; align-items: center; justify-content: center;">`;
-    content += `<img src="${slotSprites[resultSlots[1]]}" width="50"></div>`;
-    content += `<div style="width: 70px; height: 70px; background: #ffcc00; border: 2px solid black; border-radius: 5px; display: flex; align-items: center; justify-content: center;">`;
-    content += `<img src="${slotSprites[resultSlots[2]]}" width="50"></div>`;
+    content += `<div style="width: 70px; height: 70px; border: 2px solid black; border-radius: 5px;"><center>`;
+    content += `<img src="${slotSprites[resultSlots[0]]}" width="50">`;
+    content += `<img src="${slotSprites[resultSlots[1]]}" width="50">`;
+    content += `<img src="${slotSprites[resultSlots[2]]}" width="50"></center></div>`;
     content += `</div><br>`;
     content += won ? `<h2 style="color: #66ff66;">🎉 JACKPOT! You won <strong>15 Pokédollars!</strong></h2>` 
                    : `<h2 style="color: #ff6666;">😔 Oh no! You lost this round.</h2>`;
