@@ -13,19 +13,14 @@ const getSprite = (pokemon: string) => `https://play.pokemonshowdown.com/sprites
 // 🎮 JSX Slot Display Component
 function SlotDisplay({ user, slotOne, slotTwo, slotThree, result, winnings }) {
     return <JSX.Fragment>
-        <style dangerouslySetInnerHTML={{ __html: `
-            .slot-container { background: black; padding: 10px; border-radius: 8px; text-align: center; }
-            .slot-image { padding: 5px; border: 2px solid gold; border-radius: 5px; width: 64px; height: 64px; }
-            .result-text { color: white; font-weight: bold; }
-        ` }} />
-        <div class="slot-container">
+        <div class="slot-container" style="background:black;padding:10px;border-radius:8px;text-align:center;">
             <h3 style="color: gold;">🎰 {user.name}'s Slot Machine 🎰</h3>
             <div>
-                <img class="slot-image" src={getSprite(slotOne)} />
-                <img class="slot-image" src={getSprite(slotTwo)} />
-                <img class="slot-image" src={getSprite(slotThree)} />
+                <img class="slot-image" style="padding:5px;border:2px solid gold;border-radius:5px;width:64px;height:64px;" src={getSprite(slotOne)} />
+                <img class="slot-image" style="padding:5px;border:2px solid gold;border-radius:5px;width:64px;height:64px;" src={getSprite(slotTwo)} />
+                <img class="slot-image" style="padding:5px;border:2px solid gold;border-radius:5px;width:64px;height:64px;" src={getSprite(slotThree)} />
             </div>
-            <p class="result-text">
+            <p class="result-text" style="color:white;font-weight:bold;">
                 {result ? `🎉 You won ${winnings} Pokédollars! 🎉` : "😢 Better luck next time!"}
             </p>
         </div>
