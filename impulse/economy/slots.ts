@@ -21,6 +21,7 @@ function spin(): string {
     return availableSlots[Math.floor(Math.random() * availableSlots.length)];
 }
 
+/*
 // Slot result display with rolling animation
 function displaySlotResult(user: User, finalSlots: string[], wonAmount?: number, isTest = false): string {
     let content = `<div style="padding: 10px; background: black; border: 3px solid gold; border-radius: 10px; text-align: center;">`;
