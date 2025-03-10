@@ -18,6 +18,13 @@ function spin(): string {
 
 // Helper function to build the slot machine UI
 function buildSlotUI(user: User, resultSlots: string[], won: string | null, isTest: boolean): string {
+    const slotSprites = {
+        bulbasaur: 'https://play.pokemonshowdown.com/sprites/gen3/bulbasaur.png', squirtle: 'https://play.pokemonshowdown.com/sprites/gen3/squirtle.png',
+        charmander: 'https://play.pokemonshowdown.com/sprites/gen3/charmander.png', pikachu: 'https://play.pokemonshowdown.com/sprites/gen3/pikachu.png',
+        eevee: 'https://play.pokemonshowdown.com/sprites/gen3/eevee.png', snorlax: 'https://play.pokemonshowdown.com/sprites/gen3/snorlax.png',
+        dragonite: 'https://play.pokemonshowdown.com/sprites/gen3/dragonite.png', mew: 'https://play.pokemonshowdown.com/sprites/gen3/mew.png',
+        mewtwo: 'https://play.pokemonshowdown.com/sprites/gen3/mewtwo.png',
+    };
 
     let content = `<div style="display: flex; justify-content: center; align-items: center; width: 100%;">`;
     content += `<div style="background: #0d0d0d; color: #ffffff; border: 1px solid #4f4f4f; border-radius: 8px; padding: 10px; max-width: 400px; font-family: Verdana, sans-serif;">`;
@@ -26,15 +33,13 @@ function buildSlotUI(user: User, resultSlots: string[], won: string | null, isTe
 
     content += `<div style="display: flex; justify-content: center; gap: 10px; padding: 10px;">`;
     for (const slot of resultSlots) {
-        content += `<div style="width: 70px; height: 70px; background: #ffcc00; border: 2px solid black; border-radius: 5px; display: flex; align-items: center; justify-content: center;">`;
-        content += `<img src="${slotSprites[slot]}" width="50">`;
-        content += `</div>`;
+        content += `<img src="${slotSprites[slot]}" width="50" style="border: 2px solid #ffcc00; border-radius: 5px;">`;
     }
     content += `</div>`;
 
     content += `<br>`;
     content += won 
-        ? `<h2 style="color: #66ff66; text-align: center;">🎉 JACKPOT! You won <strong>15 ${currencyName}!</strong></h2>` 
+        ? `<h2 style="color: #66ff66; text-align: center;">🎉 JACKPOT! You won <strong>15 Pokédollars!</strong></h2>` 
         : `<h2 style="color: #ff6666; text-align: center;">😔 Oh no! You lost this round.</h2>`;
 
     if (isTest) {
