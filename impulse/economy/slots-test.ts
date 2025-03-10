@@ -15,46 +15,32 @@ function spin() {
     return availableSlots[Math.floor(Math.random() * availableSlots.length)];
 }
 
-export const pages: PageTable = {
-    slots(query, user, connection) {
-        const balance = getBalance(user.id); // 💰 Get user's balance
-        const betAmount = 3;
-
-        if (balance < betAmount) {
-            return `<h2 style="color:red;text-align:center;">❌ You need at least ${betAmount} Pokédollars to play! ❌</h2>`;
-        }
-
-        // 💸 Deduct balance before spinning
-        takeMoney(user.id, betAmount, "Slots bet");
-
-        // 🎰 Perform slot spin
-        const slotOne = spin(), slotTwo = spin(), slotThree = spin();
-        const isWin = slotOne === slotTwo && slotTwo === slotThree;
-        const winnings = isWin ? slots[slotOne] : 0;
-
-        if (isWin) addMoney(user.id, winnings, "Slots winnings"); // 💰 Add winnings if won
-
-        return `
-            <style>
-                body { background:black; color:white; text-align:center; font-family:Arial; }
-                .slot-image { padding:5px; margin:5px; border:2px solid gold; border-radius:5px; width:64px; height:64px; }
-                .spin-btn { background:gold; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold; }
-            </style>
-            <h2>🎰 ${user.name}'s Slot Machine 🎰</h2>
-            <h3>💰 Balance: <span id="balance">${balance - betAmount + winnings}</span> Pokédollars</h3>
-            <div id="slot-results">
-                <img class="slot-image" src="${getSprite(slotOne)}" />
-                <img class="slot-image" src="${getSprite(slotTwo)}" />
-                <img class="slot-image" src="${getSprite(slotThree)}" />
-            </div>
-            <p>${isWin ? `🎉 You won ${winnings} Pokédollars! 🎉` : "😢 Better luck next time!"}</p>
-            <button class="spin-btn" onclick="window.location.reload()">🔄 Spin Again</button>
-        `;
-    },
-};
+// 🎮 Slot Machine Display Component
+function SlotDisplay({ user, slotOne, slotTwo, slotThree, result, winnings }) { 
+	return `<style>.slot-container{background:black;padding:10px;border-radius:8px;text-align:center;}.slot-image{padding:5px;margin:5px;border:2px solid gold;border-radius:5px;width:64px;height:64px;}.result-text{color:white;font-weight:bold;}.spin-btn{background:gold;padding:8px 16px;border-radius:5px;border:none;cursor:pointer;font-weight:bold;}</style><div class="slot-container"><h3 style="color:gold;">🎰 ${user.name}'s Slot Machine 🎰</h3><div id="slot-results"><img class="slot-image" src="${getSprite(slotOne)}" /><img class="slot-image" src="${getSprite(slotTwo)}" /><img class="slot-image" src="${getSprite(slotThree)}" /></div><p id="slot-message" class="result-text">${result ? `🎉 You won ${winnings} Pokédollars! 🎉` : "😢 Better luck next time!"}</p><button class="spin-btn" onclick="reSpin()">🔄 Spin Again</button></div><script>function reSpin(){document.getElementById('slot-message').innerHTML="🔄 Spinning...";setTimeout(()=>{document.getElementById('slot-results').innerHTML='<img class="slot-image" src="${getSprite(spin())}" /><img class="slot-image" src="${getSprite(spin())}" /><img class="slot-image" src="${getSprite(spin())}" />';document.getElementById('slot-message').innerHTML="✨ Try your luck again!";},1500);}</script>`; 
+}
 
 export const commands: ChatCommands = {
-    slots(target, room, user) {
-        this.parse(`/j view-slots`); // ✅ Opens slots page in Pokémon Showdown
+    slots: {
+        async spin(target, room, user) {
+            if (!room || !this.runBroadcast()) return false; // ✅ Allow all users to broadcast
+            
+            // 💰 Check user's balance
+            const balance = await getBalance(user.id);
+            const betAmount = 3;
+            if (balance < betAmount) return this.errorReply(`You need at least ${betAmount} Pokédollars to play!`);
+
+            // 🔄 Perform slot spin
+            const slotOne = spin(), slotTwo = spin(), slotThree = spin();
+            const isWin = slotOne === slotTwo && slotTwo === slotThree;
+            const winnings = isWin ? slots[slotOne] : 0;
+
+            // 💸 Update balance
+            await takeMoney(user.id, betAmount, "Slots bet");
+            if (isWin) await addMoney(user.id, winnings, "Slots winnings");
+
+            // 📺 Broadcast slot results using our own `this.sendStyledBroadcast()`
+            this.sendStyledBroadcast(SlotDisplay({ user, slotOne, slotTwo, slotThree, result: isWin, winnings }));
+        },
     },
 };
