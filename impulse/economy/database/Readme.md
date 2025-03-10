@@ -1,0 +1,1 @@
+stores users economy data
